@@ -45,10 +45,10 @@ namespace ArkhamSaveParser {
 
 				reader.BaseStream.Seek(offset, SeekOrigin.Begin);
 				//- Header: 0x9e2a83c1 (2653586369)
-				_ = Get32(reader); // header
-				_ = Get32(reader); // + 4, unknown
-				segment.compressedSize = (int)Get32(reader); // + 8
-				segment.decompressedSize = (int)Get32(reader); // + 12
+				_ = ParserUtils.ReadUint32_BE(reader); // header
+				_ = ParserUtils.ReadUint32_BE(reader); // + 4, unknown
+				segment.compressedSize = (int)ParserUtils.ReadUint32_BE(reader); // + 8
+				segment.decompressedSize = (int)ParserUtils.ReadUint32_BE(reader); // + 12
 				reader.BaseStream.Position += 8; // skip 8 bytes before compressed data
 				segment.offset = reader.BaseStream.Position;
 				segments.Add(segment);
@@ -85,10 +85,6 @@ namespace ArkhamSaveParser {
 			}
 
 			return offsets.ToArray();
-		}
-
-		private static uint Get32(BinaryReader reader) {
-			return BinaryPrimitives.ReverseEndianness(reader.ReadUInt32());
 		}
 	}
 }
