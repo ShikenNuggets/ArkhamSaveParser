@@ -30,5 +30,15 @@ namespace ArkhamSaveParser {
 			int utf16Bytes = Math.Abs(length) * 2;
 			return Encoding.Unicode.GetString(reader.ReadBytes(utf16Bytes));
 		}
+
+		public static List<string> ReadStringArray(BinaryReader reader) {
+			uint length = ReadUint32_BE(reader);
+			List<string> result = new List<string>();
+			for (var i = 0; i < length; ++i) {
+				result.Add(ReadUE3String(reader));
+			}
+
+			return result;
+		}
 	}
 }
