@@ -42,6 +42,6 @@ namespace ArkhamSaveParser {
 			return Convert.ToHexStringLower(totalHash);
 		}
 
-		private byte[] rawData;
+		protected byte[] rawData;
 	}
 }
