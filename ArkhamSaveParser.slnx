@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ArkhamSaveParser/ArkhamSaveParser.csproj" />
+  <Project Path="ArkhamSaveParser.Tests/ArkhamSaveParser.Tests.csproj" />
+</Solution>
