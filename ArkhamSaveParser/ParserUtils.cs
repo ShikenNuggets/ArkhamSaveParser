@@ -24,11 +24,15 @@ namespace ArkhamSaveParser {
 			}
 
 			if (length > 0) {
-				return Encoding.ASCII.GetString(reader.ReadBytes(length));
+				var asciiBytes = reader.ReadBytes(length - 1);
+				reader.ReadByte(); // Discard the null terminator byte
+				return Encoding.ASCII.GetString(asciiBytes);
 			}
 
-			int utf16Bytes = Math.Abs(length) * 2;
-			return Encoding.Unicode.GetString(reader.ReadBytes(utf16Bytes));
+			int utf16Bytes = (Math.Abs(length) * 2) - 2;
+			var strBytes = reader.ReadBytes(utf16Bytes);
+			reader.ReadByte(); // Discard the null terminator byte
+			return Encoding.Unicode.GetString(strBytes);
 		}
 
 		public static List<string> ReadStringArray(BinaryReader reader) {

@@ -1,4 +1,4 @@
-namespace ArkhamSaveParser.Tests;
+﻿namespace ArkhamSaveParser.Tests;
 
 using System.IO;
 using System.Text;
@@ -44,11 +44,12 @@ public class ParserUtilsTest {
 			return ConstructUint(0);
 		}
 
-		var lenBytes = ConstructUint((uint)inStr.Length);
+		var lenBytes = ConstructUint((uint)inStr.Length + 1);
 		var strBytes = Encoding.ASCII.GetBytes(inStr);
-		var outBytes = new byte[4 + strBytes.Length];
+		var outBytes = new byte[4 + strBytes.Length + 1];
 		Buffer.BlockCopy(lenBytes, 0, outBytes, 0, 4);
 		Buffer.BlockCopy(strBytes, 0, outBytes, 4, strBytes.Length);
+		outBytes[outBytes.Length - 1] = 0; 
 		return outBytes;
 	}
 
@@ -57,11 +58,12 @@ public class ParserUtilsTest {
 			return ConstructUint(0);
 		}
 
-		var utf16LenBytes = ConstructInt(-inStr.Length);
+		var utf16LenBytes = ConstructInt(-inStr.Length - 1);
 		var utf16Bytes = Encoding.Unicode.GetBytes(inStr);
-		var outUtf16 = new byte[4 + utf16Bytes.Length];
+		var outUtf16 = new byte[4 + utf16Bytes.Length + 1];
 		Buffer.BlockCopy(utf16LenBytes, 0, outUtf16, 0, 4);
 		Buffer.BlockCopy(utf16Bytes, 0, outUtf16, 4, utf16Bytes.Length);
+		outUtf16[outUtf16.Length - 1] = 0;
 		return outUtf16;
 	}
 
@@ -135,6 +137,14 @@ public class ParserUtilsTest {
 		Run("Hello");
 		Run("");
 		Run("a really LonG STRING");
+		Run("50/400");
+		Run("18/94");
+
+		// Explicit construction of a real test case, just as a sanity check
+		var bytes = new byte[]{ 0x0, 0x0, 0x0, 0x6, 0x30, 0x2F, 0x38, 0x35, 0x32, 0x0 };
+		var reader = CreateBinaryReader(bytes);
+		string actual = ParserUtils.ReadUE3String(reader);
+		Assert.AreEqual("0/852", actual);
 	}
 
 	[TestMethod]
