@@ -29,6 +29,18 @@ namespace ArkhamSaveParser {
 			return upgrades;
 		}
 
+		public string GetWorldName() {
+			return worldName;
+		}
+
+		public string GetRoomName() {
+			return roomName;
+		}
+
+		public List<string> GetFlagStrings() {
+			return flagStrings;
+		}
+
 		private uint day = 0;
 		private uint month = 0;
 		private uint year = 0;
@@ -38,6 +50,10 @@ namespace ArkhamSaveParser {
 
 		private List<string> collectibles = [];
 		private List<string> upgrades = [];
+
+		private string worldName = string.Empty;
+		private string roomName = string.Empty;
+		private List<string> flagStrings = [];
 
 		private void ParseSave() {
 			var reader = new BinaryReader(new MemoryStream(rawData));
@@ -344,6 +360,60 @@ namespace ArkhamSaveParser {
 			if (unknown77 != 1) {
 				throw new ArgumentException("The file was parsed incorrectly, expected " + 1 + " at section 2 end, got " + unknown77);
 			}
+
+			// ------------------------------- //
+			// ---------- Segment 3 ---------- //
+			// ------------------------------- //
+
+			var segment3Header = ParserUtils.ReadUint32_BE(reader);
+			if (segment3Header != 0x81) {
+				throw new ArgumentException("The file was parsed incorrectly, expected " + 0x81 + " at section 3 start, got " + segment3Header);
+			}
+
+			var unknown78 = ParserUtils.ReadUint32_BE(reader);
+			var unknown79 = ParserUtils.ReadUint32_BE(reader);
+			var unknown80 = ParserUtils.ReadUint32_BE(reader);
+			var unknown81 = ParserUtils.ReadUint32_BE(reader);
+			var unknown82 = ParserUtils.ReadUint32_BE(reader);
+			var unknown83 = ParserUtils.ReadUint32_BE(reader);
+			var unknown84 = ParserUtils.ReadUint32_BE(reader); // This one's probably just padding
+
+			var worldStrings = ParserUtils.ReadStringArray(reader); // Includes world name/room name, which chapters/LODs should be loaded, etc
+
+			var unknown85 = ParserUtils.ReadUint32_BE(reader); // Padding?
+			var unknown86 = ParserUtils.ReadUint32_BE(reader); // Padding?
+
+			worldName = ParserUtils.ReadUE3String(reader);
+			roomName = ParserUtils.ReadUE3String(reader);
+
+			var unknown87 = ParserUtils.ReadUint32_BE(reader); // Padding?
+
+			var unknownStrings88 = ParserUtils.ReadStringArray(reader); // OW flags?
+			var unknownStrings89 = ParserUtils.ReadStringArray(reader);
+
+			flagStrings = ParserUtils.ReadStringArray(reader); // VERY large array, there are thousands of these
+
+			var unknownBytes90 = reader.ReadBytes(10); // Not entirely sure what to make of this
+
+			var lastRoomNameUserFacing = ParserUtils.ReadUE3String(reader);
+
+			var unknownBytes91 = reader.ReadBytes(2); // Padding?
+
+			var currentObjectiveTag = ParserUtils.ReadUE3String(reader);
+
+			var unknown92 = ParserUtils.ReadUint32_BE(reader); // Padding?
+			var unknownStrings94 = ParserUtils.ReadStringArray(reader); // Something objective related?
+			var unknownString95 = ParserUtils.ReadUE3String(reader); // Something side mission related?
+
+			var unknown96 = ParserUtils.ReadUint32_BE(reader); // 64
+			var unknown97 = ParserUtils.ReadFloat_BE(reader); // 2032.43981933594
+			var unknown98 = ParserUtils.ReadUint32_BE(reader); // 2
+			var unknown99 = ParserUtils.ReadUint32_BE(reader); // Padding? 0
+			var unknown100 = ParserUtils.ReadUint32_BE(reader); // 4
+			var unknown101 = ParserUtils.ReadUint32_BE(reader); // uint32 max
+
+			var lastEquippedGadget = ParserUtils.ReadUE3String(reader);
+			var unknownString102 = ParserUtils.ReadUE3String(reader); // Last world, maybe?
 		}
 
 		private void ParseUnknownStruct(BinaryReader reader) {
