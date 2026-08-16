@@ -41,6 +41,14 @@ namespace ArkhamSaveParser {
 			return flagStrings;
 		}
 
+		public List<string> GetRadioFrequencies() {
+			return radioFrequencies;
+		}
+
+		public string GetLastUsedCharacter() {
+			return lastUsedCharacter;
+		}
+
 		private uint day = 0;
 		private uint month = 0;
 		private uint year = 0;
@@ -54,6 +62,10 @@ namespace ArkhamSaveParser {
 		private string worldName = string.Empty;
 		private string roomName = string.Empty;
 		private List<string> flagStrings = [];
+
+		private List<string> radioFrequencies = [];
+
+		private string lastUsedCharacter = string.Empty;
 
 		private void ParseSave() {
 			var reader = new BinaryReader(new MemoryStream(rawData));
@@ -414,6 +426,102 @@ namespace ArkhamSaveParser {
 
 			var lastEquippedGadget = ParserUtils.ReadUE3String(reader);
 			var unknownString102 = ParserUtils.ReadUE3String(reader); // Last world, maybe?
+
+			var unknown103 = reader.ReadBytes(85); // Not sure how to read these, there's a stray byte in here somewhere
+
+			var unknown107 = ParserUtils.ReadStringArray(reader); // Objective keys?
+			var unknown108 = reader.ReadBytes(21); // Not sure how to read these, there's a stray byte somewhere in here
+			var unknownString109 = ParserUtils.ReadUE3String(reader); // Last room name?
+			var unknow110 = reader.ReadBytes(12); // Padding?
+			var unknow111 = ParserUtils.ReadUint32_BE(reader); // 14
+			var unknown112 = reader.ReadBytes(20); // Padding?
+			var unknown113 = ParserUtils.ReadUint32_BE(reader); // 0 on TestSave0, 5 on TestSave1 
+			var unknown114 = reader.ReadBytes(56); // Padding?
+			radioFrequencies = ParserUtils.ReadStringArray(reader);
+
+			var numFlags115 = ParserUtils.ReadUint32_BE(reader); // 5 on TestSave0, 12 on TestSave1
+			var unknownFlagBytes116 = reader.ReadBytes((int)numFlags115);
+
+			var numFlags117 = ParserUtils.ReadUint32_BE(reader); // 5 on TestSave0, 12 on TestSave1
+			var unknownFlagBytes118 = reader.ReadBytes((int)numFlags117);
+
+			var numInts119 = ParserUtils.ReadUint32_BE(reader); // 5 on TestSave0, 12 on TestSave1
+			for (int i = 0; i < numInts119; ++i) {
+				var unknownInt = ParserUtils.ReadUint32_BE(reader);
+			}
+
+			var numFloats120 = ParserUtils.ReadUint32_BE(reader); // 5 on TestSave0, 12 on TestSave1
+			for (int i = 0; i < numFloats120; ++i) {
+				var unknownFloat = ParserUtils.ReadFloat_BE(reader);
+			}
+
+			var numFloats121 = ParserUtils.ReadUint32_BE(reader); // 5 on TestSave0, 12 on TestSave1
+			for (int i = 0; i < numFloats121; ++i) {
+				var unknownFloat = ParserUtils.ReadFloat_BE(reader);
+			}
+
+			// These all have something to do with the radio frequencies but no idea what they mean
+			var unknownStrings122 = ParserUtils.ReadStringArray(reader); // FM, Terrestrial, Shortwave, Microwave
+			var unknownStrings123 = ParserUtils.ReadStringArray(reader); // None, PGP, RSA
+			var unknownStrings124 = ParserUtils.ReadStringArray(reader); // Medium, High?
+
+			var unknown125 = reader.ReadByte(); // Seems to be a single padding byte
+
+			var unknown126 = ParserUtils.ReadFloat_BE(reader);
+			var unknown127 = ParserUtils.ReadFloat_BE(reader);
+			var unknown128 = ParserUtils.ReadFloat_BE(reader);
+
+			lastUsedCharacter = ParserUtils.ReadUE3String(reader);
+
+			var unknownStrings129 = ParserUtils.ReadStringArray(reader); // Something else radio station related
+			var unknownStrings130 = ParserUtils.ReadStringArray(reader); // Something else radio station related
+			var unknownStrings131 = ParserUtils.ReadStringArray(reader); // Same entries as the previous one but with _Sequences appended
+			var unknownStrings132 = ParserUtils.ReadStringArray(reader); // Specific frequencies? GothamFM_01, Tyger_Chatter, etc
+			var unknownStrings133 = ParserUtils.ReadStringArray(reader); // Specific radio dialogue? Play_GothamFM_VickiVale03
+			var unknownStrings134 = ParserUtils.ReadStringArray(reader); // Lots of "Unknown"
+
+			var numInts135 = ParserUtils.ReadUint32_BE(reader); // 12
+			for (int i = 0; i < numInts135; ++i) {
+				var unknownInt = ParserUtils.ReadUint32_BE(reader);
+			}
+
+			var numInts136 = ParserUtils.ReadUint32_BE(reader); // 12
+			for (int i = 0; i < numInts136; ++i) {
+				var unknownInt = ParserUtils.ReadUint32_BE(reader);
+			}
+
+			var numInts137 = ParserUtils.ReadUint32_BE(reader); // 12
+			for (int i = 0; i < numInts137; ++i) {
+				var unknownInt = ParserUtils.ReadUint32_BE(reader);
+			}
+
+			var numInts138 = ParserUtils.ReadUint32_BE(reader); // 12
+			for (int i = 0; i < numInts138; ++i) {
+				var unknownInt = ParserUtils.ReadUint32_BE(reader);
+			}
+
+			var numInts139 = ParserUtils.ReadUint32_BE(reader); // 12
+			for (int i = 0; i < numInts139; ++i) {
+				var unknownInt = ParserUtils.ReadUint32_BE(reader);
+			}
+
+			var numInts140 = ParserUtils.ReadUint32_BE(reader); // 12
+			for (int i = 0; i < numInts140; ++i) {
+				var unknownInt = ParserUtils.ReadUint32_BE(reader);
+			}
+
+			var unknownBytes143 = reader.ReadBytes(39); // Not sure how to read these, there's 3 stray bytes somewhere in here
+
+			var unknownString145 = ParserUtils.ReadUE3String(reader); // Something side mission related
+			var unknownString146 = ParserUtils.ReadUE3String(reader); // Something side mission related
+
+			var numFlags147 = ParserUtils.ReadUint32_BE(reader); // 0 on TestSave0, 1 on TestSave1
+			var unknownFlagBytes148 = reader.ReadBytes((int)numFlags147);
+
+			var unknownBytes149 = reader.ReadBytes(34); // Not sure how to read these, there's 3 stray bytes somewhere in here
+
+			var unknown150 = ParserUtils.ReadFloat_BE(reader); // 0.6 on TestSave0, 0.5 on TestSave1
+			var unknown151 = ParserUtils.ReadInt32_BE(reader); // -1
 		}
 
 		private void ParseUnknownStruct(BinaryReader reader) {

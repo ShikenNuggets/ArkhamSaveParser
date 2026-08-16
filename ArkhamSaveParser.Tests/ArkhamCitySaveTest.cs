@@ -23,6 +23,11 @@ namespace ArkhamSaveParser.Tests {
 			Assert.AreEqual(861, citySave.GetFlagStrings().Count);
 			Assert.Contains("Unlocked_HangAttackTd", citySave.GetFlagStrings());
 			Assert.Contains("PickedUp_OWB_Balloons_4", citySave.GetFlagStrings());
+
+			Assert.Contains("GothamFM", citySave.GetRadioFrequencies());
+			Assert.Contains("Puffin-Zero", citySave.GetRadioFrequencies());
+
+			Assert.AreEqual("Playable_Batman", citySave.GetLastUsedCharacter());
 		}
 
 		[TestMethod]
@@ -43,6 +48,11 @@ namespace ArkhamSaveParser.Tests {
 			Assert.Contains("Unlocked_HangAttackTd", citySave.GetFlagStrings());
 			Assert.Contains("OW_C2.RFractureWall_7.R_25", citySave.GetFlagStrings());
 			Assert.Contains("Steel.RLevelTransitionDoubleDoors_0.InvSpoke0", citySave.GetFlagStrings());
+
+			Assert.Contains("GothamFM", citySave.GetRadioFrequencies());
+			Assert.Contains("Riddler_Station_04", citySave.GetRadioFrequencies());
+
+			Assert.AreEqual("Playable_Batman", citySave.GetLastUsedCharacter());
 		}
 	}
 }
