@@ -14,6 +14,14 @@ namespace ArkhamSaveParser.Tests {
 		}
 
 		[TestMethod]
+		public void ParseDefaultResaveNoChangesArkhamCitySave() {
+			var compressedSave = new CompressedSave("TestData/City/DefaultSave_ResaveNoChanges.sgd");
+			var citySave = new ArkhamCitySave(compressedSave);
+
+			Assert.AreEqual("2026-08-20", citySave.GetDateString());
+		}
+
+		[TestMethod]
 		public void ParseArkhamCitySave0() {
 			var compressedSave = new CompressedSave("TestData/City/TestSave0.sgd");
 			var citySave = new ArkhamCitySave(compressedSave);
