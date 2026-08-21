@@ -66,7 +66,6 @@ namespace ArkhamSaveParser {
 		private List<string> radioFrequencies = [];
 
 		private string lastUsedCharacter = string.Empty;
-
 		public uint constant1;
 		public uint constant2;
 
@@ -84,6 +83,8 @@ namespace ArkhamSaveParser {
 
 		public List<string> progressStrings;
 
+		public string lastSelectedRiddlersRevengeCharacter;
+
 		public uint segment2HeaderA;
 		public uint segment2HeaderB;
 
@@ -99,9 +100,14 @@ namespace ArkhamSaveParser {
 		public uint unknown6;
 		public uint unknown7;
 		public uint unknown9;
+
+		public uint[] unknownSettings0;
+
 		public uint unknown10;
 		public uint unknown11;
 		public uint unknown12;
+
+		public List<byte[]> unknownStructs;
 		public byte[] unknownBytes1;
 		public byte[] unknownBytes2;
 		public uint unknown13;
@@ -112,8 +118,6 @@ namespace ArkhamSaveParser {
 		public uint unknown18;
 
 		public uint[] unknownUints1;
-
-		public string unknownString1;
 
 		public uint[] unknownUints2;
 
@@ -324,8 +328,9 @@ namespace ArkhamSaveParser {
 			hints = ParserUtils.ReadUint32_BE(reader); // Subtitles? Inverted look?
 			unknown9 = ParserUtils.ReadUint32_BE(reader); // Another slider?
 
+			unknownSettings0 = new uint[22];
 			for (var i = 0; i < 22; ++i) {
-				ParserUtils.ReadUint32_BE(reader); // More settings or flags or something
+				unknownSettings0[i] = ParserUtils.ReadUint32_BE(reader); // More settings or flags or something
 			}
 
 			day = ParserUtils.ReadUint32_BE(reader);
@@ -339,8 +344,9 @@ namespace ArkhamSaveParser {
 			unknown12 = ParserUtils.ReadUint32_BE(reader);
 
 			var structCount = ParserUtils.ReadUint32_BE(reader);
+			unknownStructs = new List<byte[]>();
 			for (var i = 0; i < structCount; ++i) {
-				ParseUnknownStruct(reader); // I think this is related to challenge maps
+				unknownStructs.Add(ParseUnknownStruct(reader)); // I think this is related to challenge maps
 			}
 
 			unknownBytes1 = reader.ReadBytes(32); // Exit block
@@ -362,12 +368,13 @@ namespace ArkhamSaveParser {
 
 			totalCompletionWithDLC = ParserUtils.ReadFloat_BE(reader); // Total progress?
 
+			// Possibly challenge map related, 2 and 4 added after doing a DLC combat matp
 			unknownUints1 = new uint[10];
 			for (var i = 0; i < 10; ++i) {
-				unknownUints1[i] = ParserUtils.ReadUint32_BE(reader); // Seems to just be padding
+				unknownUints1[i] = ParserUtils.ReadUint32_BE(reader);
 			}
 			
-			unknownString1 = ParserUtils.ReadUE3String(reader); // Character, or something
+			lastSelectedRiddlersRevengeCharacter = ParserUtils.ReadUE3String(reader); // Character, or something
 
 			unknownUints2 = new uint[6];
 			for (var i = 0; i < 6; ++i) {
@@ -807,13 +814,15 @@ namespace ArkhamSaveParser {
 			unknownBytes170 = reader.ReadBytes((int)unknownCount169);
 		}
 
-		private void ParseUnknownStruct(BinaryReader reader) {
+		private byte[] ParseUnknownStruct(BinaryReader reader) {
 			var identifier = ParserUtils.ReadUint32_BE(reader);
 			var subCount = ParserUtils.ReadUint32_BE(reader);
 
 			if (subCount > 0) {
-				reader.ReadBytes((int)subCount * 19);
+				return reader.ReadBytes((int)subCount * 19);
 			}
+
+			return null;
 		}
 	}
 }
