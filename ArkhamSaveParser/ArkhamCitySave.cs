@@ -87,6 +87,12 @@ namespace ArkhamSaveParser {
 		public uint segment2HeaderA;
 		public uint segment2HeaderB;
 
+		public List<string> worldStrings;
+
+		public string lastRoomNameUserFacing;
+		public string currentObjectiveTag;
+		public string lastEquippedGadget;
+
 		// Unknown Values
 		public uint unknown1;
 		public uint unknown5;
@@ -156,6 +162,142 @@ namespace ArkhamSaveParser {
 
 		public uint unknown33;
 		public uint unknown34;
+		public uint unknown35;
+		public uint unknown36;
+		public uint unknown37;
+		public uint unknown38;
+		public uint unknown39;
+		public uint unknown40;
+		public uint unknown41;
+		public uint unknown42;
+		public uint unknown43;
+		public uint unknown44;
+		public uint unknown45;
+		public uint unknown46;
+		public uint unknown47;
+		public uint unknown48;
+		public uint unknown49;
+		public uint unknown50;
+		public uint unknown51;
+		public uint unknown52;
+		public uint unknown53;
+		public uint unknown54;
+		public uint unknown55;
+		public uint unknown56;
+		public uint unknown57;
+		public uint unknown58;
+		public uint unknown59;
+		public uint unknown60;
+		public uint unknown61;
+		public uint unknown62;
+		public uint unknown63;
+		public uint unknown64;
+		public uint unknown65;
+		public uint unknown66;
+		public uint unknown67;
+		public float unknown68;
+		public float unknown69;
+		public float unknown70;
+		public float unknown71;
+		public uint unknown72;
+		public uint unknown73;
+		public uint unknown74;
+		public uint unknown75;
+		public uint unknown76;
+		public uint unknown77;
+		public uint unknown78;
+		public uint unknown79;
+		public uint unknown80;
+		public uint unknown81;
+		public uint unknown82;
+		public uint unknown83;
+		public uint unknown84;
+		public uint unknown85;
+		public uint unknown86;
+		public uint unknown87;
+		public List<string> unknownStrings88;
+		public List<string> unknownStrings89;
+		public byte[] unknownBytes90;
+		public byte[] unknownBytes91;
+		public uint unknown92;
+		public uint unknown93;
+		public List<string> unknownStrings94;
+		public string unknownString95;
+		public uint unknown96;
+		public float unknown97;
+		public uint unknown98;
+		public uint unknown99;
+		public uint unknown100;
+		public uint unknown101;
+		public string unknownString102;
+		public byte[] unknownBytes103;
+		public uint unknown104;
+		public uint unknown105;
+		public uint unknown106;
+		public List<string> unknownStrings107;
+		public byte[] unknownBytes108;
+		public string unknownString109;
+		public byte[] unknownBytes110;
+		public uint unknown111;
+		public byte[] unknownBytes112;
+		public uint unknown113;
+		public byte[] unknownBytes114;
+		public uint unknown115;
+		public byte[] unknownFlagBytes116;
+		public uint unknown117;
+		public byte[] unknownFlagBytes118;
+		public uint[] unknownInts119;
+		public float[] unknownFloats120;
+		public float[] unknownFloats121;
+		public List<string> unknownStrings122;
+		public List<string> unknownStrings123;
+		public List<string> unknownStrings124;
+		public uint unknown125;
+		public float unknown126;
+		public float unknown127;
+		public float unknown128;
+		public List<string> unknownStrings129;
+		public List<string> unknownStrings130;
+		public List<string> unknownStrings131;
+		public List<string> unknownStrings132;
+		public List<string> unknownStrings133;
+		public List<string> unknownStrings134;
+		public uint[] unknownInts135;
+		public uint[] unknownInts136;
+		public uint[] unknownInts137;
+		public uint[] unknownInts138;
+		public uint[] unknownInts139;
+		public uint[] unknownInts140;
+		public uint unknown141;
+		public uint unknown142;
+		public byte[] unknownBytes143;
+		public uint unknown144;
+		public string unknownString145;
+		public string unknownString146;
+		public uint numFlags147;
+		public byte[] unknownFlagBytes148;
+		public byte[] unknownBytes149;
+		public float unknown150;
+		public float unknown151;
+		public float unknown152;
+		public float unknown153;
+		public byte[] unknownBitFlags154;
+		public uint unknown155;
+		public byte[] unknownBitFlags156;
+		public uint unknown157;
+		public byte[] unknownBitFlags158;
+		public byte[] unknownBytes159;
+		public float[] unknownFloats160;
+		public uint[] unknownInts161;
+		public float[] unknownFloats162;
+		public float[] unknownFloats163;
+		public int unknown164;
+		public int unknown165;
+		public uint unknown166;
+		public byte unknownByte167;
+		public float[] unknownFloats168;
+		public float[] unknownFloats169;
+		public byte[] unknownBytes170;
 
 		private void ParseSave() {
 			var reader = new BinaryReader(new MemoryStream(rawData));
@@ -302,121 +444,121 @@ namespace ArkhamSaveParser {
 				return;
 			}
 
-			var unknown35 = ParserUtils.ReadUint32_BE(reader); // 9
+			unknown35 = ParserUtils.ReadUint32_BE(reader); // 9
 			for (var i = 0; i < unknown35; ++i) {
 				reader.ReadByte(); // These range from 0 to 31, not sure what to make of them
 			}
 
-			var unknown36 = ParserUtils.ReadUint32_BE(reader); // 9
+			unknown36 = ParserUtils.ReadUint32_BE(reader); // 9
 			for (var i = 0; i < unknown36; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknown37 = ParserUtils.ReadUint32_BE(reader); // 9
+			unknown37 = ParserUtils.ReadUint32_BE(reader); // 9
 			for (var i = 0; i < unknown37; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknown38 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
+			unknown38 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
 			for (var i = 0; i < unknown38; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknown39 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
+			unknown39 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
 			for (var i = 0; i < unknown39; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknown40 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
+			unknown40 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
 			for (var i = 0; i < unknown40; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknown41 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
+			unknown41 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
 			for (var i = 0; i < unknown41; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknown42 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
+			unknown42 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
 			for (var i = 0; i < unknown42; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknown43 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
+			unknown43 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
 			for (var i = 0; i < unknown43; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknown44 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
+			unknown44 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
 			for (var i = 0; i < unknown44; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknown45 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
+			unknown45 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
 			for (var i = 0; i < unknown45; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknown46 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
+			unknown46 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
 			for (var i = 0; i < unknown46; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknown47 = ParserUtils.ReadUint32_BE(reader); // 9
+			unknown47 = ParserUtils.ReadUint32_BE(reader); // 9
 			for (var i = 0; i < unknown47; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknown48 = ParserUtils.ReadUint32_BE(reader); // 9
+			unknown48 = ParserUtils.ReadUint32_BE(reader); // 9
 			for (var i = 0; i < unknown48; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknown49 = ParserUtils.ReadUint32_BE(reader); // 9
+			unknown49 = ParserUtils.ReadUint32_BE(reader); // 9
 			for (var i = 0; i < unknown49; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknown50 = ParserUtils.ReadUint32_BE(reader); // 0x0B (11)
+			unknown50 = ParserUtils.ReadUint32_BE(reader); // 0x0B (11)
 			for (var i = 0; i < unknown50; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknown51 = ParserUtils.ReadUint32_BE(reader); // 9
+			unknown51 = ParserUtils.ReadUint32_BE(reader); // 9
 			for (var i = 0; i < unknown51; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknown52 = ParserUtils.ReadUint32_BE(reader); // 9
+			unknown52 = ParserUtils.ReadUint32_BE(reader); // 9
 			for (var i = 0; i < unknown52; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknown53 = ParserUtils.ReadUint32_BE(reader); // 9
+			unknown53 = ParserUtils.ReadUint32_BE(reader); // 9
 			for (var i = 0; i < unknown53; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknown54 = ParserUtils.ReadUint32_BE(reader); // 9
+			unknown54 = ParserUtils.ReadUint32_BE(reader); // 9
 			for (var i = 0; i < unknown54; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknown55 = ParserUtils.ReadUint32_BE(reader); // 9
+			unknown55 = ParserUtils.ReadUint32_BE(reader); // 9
 			for (var i = 0; i < unknown55; ++i) {
 				ParserUtils.ReadUint32_BE(reader);
 			}
 
 			// No idea what these are
-		    var unknown59 = ParserUtils.ReadUint32_BE(reader);
-			var unknown60 = ParserUtils.ReadUint32_BE(reader);
-			var unknown61 = ParserUtils.ReadUint32_BE(reader);
-			var unknown62 = ParserUtils.ReadUint32_BE(reader);
-			var unknown63 = ParserUtils.ReadUint32_BE(reader);
-			var unknown64 = ParserUtils.ReadUint32_BE(reader);
-			var unknown65 = ParserUtils.ReadUint32_BE(reader);
-			var unknown66 = ParserUtils.ReadUint32_BE(reader);
-			var unknown67 = ParserUtils.ReadUint32_BE(reader);
+		    unknown59 = ParserUtils.ReadUint32_BE(reader);
+			unknown60 = ParserUtils.ReadUint32_BE(reader);
+			unknown61 = ParserUtils.ReadUint32_BE(reader);
+			unknown62 = ParserUtils.ReadUint32_BE(reader);
+			unknown63 = ParserUtils.ReadUint32_BE(reader);
+			unknown64 = ParserUtils.ReadUint32_BE(reader);
+			unknown65 = ParserUtils.ReadUint32_BE(reader);
+			unknown66 = ParserUtils.ReadUint32_BE(reader);
+			unknown67 = ParserUtils.ReadUint32_BE(reader);
 
 			var numFloats3 = ParserUtils.ReadUint32_BE(reader); // 0x2E (46)
 			for (var i = 0; i < numFloats3; ++i) {
@@ -433,17 +575,17 @@ namespace ArkhamSaveParser {
 				ParserUtils.ReadFloat_BE(reader);
 			}
 
-			var unknown68 = ParserUtils.ReadFloat_BE(reader);
-			var unknown69 = ParserUtils.ReadFloat_BE(reader);
-			var unknown70 = ParserUtils.ReadFloat_BE(reader);
-			var unknown71 = ParserUtils.ReadFloat_BE(reader);
+			unknown68 = ParserUtils.ReadFloat_BE(reader);
+			unknown69 = ParserUtils.ReadFloat_BE(reader);
+			unknown70 = ParserUtils.ReadFloat_BE(reader);
+			unknown71 = ParserUtils.ReadFloat_BE(reader);
 
-			var unknown72 = ParserUtils.ReadUint32_BE(reader);
-			var unknown73 = ParserUtils.ReadUint32_BE(reader);
-			var unknown74 = ParserUtils.ReadUint32_BE(reader);
-			var unknown75 = ParserUtils.ReadUint32_BE(reader);
-			var unknown76 = ParserUtils.ReadUint32_BE(reader);
-			var unknown77 = ParserUtils.ReadUint32_BE(reader);
+			unknown72 = ParserUtils.ReadUint32_BE(reader);
+			unknown73 = ParserUtils.ReadUint32_BE(reader);
+			unknown74 = ParserUtils.ReadUint32_BE(reader);
+			unknown75 = ParserUtils.ReadUint32_BE(reader);
+			unknown76 = ParserUtils.ReadUint32_BE(reader);
+			unknown77 = ParserUtils.ReadUint32_BE(reader);
 
 			if (unknown77 != 1) {
 				//throw new ArgumentException("The file was parsed incorrectly, expected " + 1 + " at section 2 end, got " + unknown77);
@@ -459,195 +601,210 @@ namespace ArkhamSaveParser {
 				throw new ArgumentException("The file was parsed incorrectly, expected " + 0x81 + " at section 3 start, got " + segment3Header);
 			}
 
-			var unknown78 = ParserUtils.ReadUint32_BE(reader);
-			var unknown79 = ParserUtils.ReadUint32_BE(reader);
-			var unknown80 = ParserUtils.ReadUint32_BE(reader);
-			var unknown81 = ParserUtils.ReadUint32_BE(reader);
-			var unknown82 = ParserUtils.ReadUint32_BE(reader);
-			var unknown83 = ParserUtils.ReadUint32_BE(reader);
-			var unknown84 = ParserUtils.ReadUint32_BE(reader); // This one's probably just padding
+			unknown78 = ParserUtils.ReadUint32_BE(reader);
+			unknown79 = ParserUtils.ReadUint32_BE(reader);
+			unknown80 = ParserUtils.ReadUint32_BE(reader);
+			unknown81 = ParserUtils.ReadUint32_BE(reader);
+			unknown82 = ParserUtils.ReadUint32_BE(reader);
+			unknown83 = ParserUtils.ReadUint32_BE(reader);
+			unknown84 = ParserUtils.ReadUint32_BE(reader); // This one's probably just padding
 
-			var worldStrings = ParserUtils.ReadStringArray(reader); // Includes world name/room name, which chapters/LODs should be loaded, etc
+			worldStrings = ParserUtils.ReadStringArray(reader); // Includes world name/room name, which chapters/LODs should be loaded, etc
 
-			var unknown85 = ParserUtils.ReadUint32_BE(reader); // Padding?
-			var unknown86 = ParserUtils.ReadUint32_BE(reader); // Padding?
+			unknown85 = ParserUtils.ReadUint32_BE(reader); // Padding?
+			unknown86 = ParserUtils.ReadUint32_BE(reader); // Padding?
 
 			worldName = ParserUtils.ReadUE3String(reader);
 			roomName = ParserUtils.ReadUE3String(reader);
 
-			var unknown87 = ParserUtils.ReadUint32_BE(reader); // Padding?
+			unknown87 = ParserUtils.ReadUint32_BE(reader); // Padding?
 
-			var unknownStrings88 = ParserUtils.ReadStringArray(reader); // OW flags?
-			var unknownStrings89 = ParserUtils.ReadStringArray(reader);
+			unknownStrings88 = ParserUtils.ReadStringArray(reader); // OW flags?
+			unknownStrings89 = ParserUtils.ReadStringArray(reader);
 
 			flagStrings = ParserUtils.ReadStringArray(reader); // VERY large array, there are thousands of these
 
-			var unknownBytes90 = reader.ReadBytes(10); // Not entirely sure what to make of this
+			unknownBytes90 = reader.ReadBytes(10); // Not entirely sure what to make of this
 
-			var lastRoomNameUserFacing = ParserUtils.ReadUE3String(reader);
+			lastRoomNameUserFacing = ParserUtils.ReadUE3String(reader);
 
-			var unknownBytes91 = reader.ReadBytes(2); // Padding?
+			unknownBytes91 = reader.ReadBytes(2); // Padding?
 
-			var currentObjectiveTag = ParserUtils.ReadUE3String(reader);
+			currentObjectiveTag = ParserUtils.ReadUE3String(reader);
 
-			var unknown92 = ParserUtils.ReadUint32_BE(reader); // Padding?
-			var unknownStrings94 = ParserUtils.ReadStringArray(reader); // Something objective related?
-			var unknownString95 = ParserUtils.ReadUE3String(reader); // Something side mission related?
+			unknown92 = ParserUtils.ReadUint32_BE(reader); // Padding?
+			unknownStrings94 = ParserUtils.ReadStringArray(reader); // Something objective related?
+			unknownString95 = ParserUtils.ReadUE3String(reader); // Something side mission related?
 
-			var unknown96 = ParserUtils.ReadUint32_BE(reader); // 64
-			var unknown97 = ParserUtils.ReadFloat_BE(reader); // 2032.43981933594
-			var unknown98 = ParserUtils.ReadUint32_BE(reader); // 2
-			var unknown99 = ParserUtils.ReadUint32_BE(reader); // Padding? 0
-			var unknown100 = ParserUtils.ReadUint32_BE(reader); // 4
-			var unknown101 = ParserUtils.ReadUint32_BE(reader); // uint32 max
+			unknown96 = ParserUtils.ReadUint32_BE(reader); // 64
+			unknown97 = ParserUtils.ReadFloat_BE(reader); // 2032.43981933594
+			unknown98 = ParserUtils.ReadUint32_BE(reader); // 2
+			unknown99 = ParserUtils.ReadUint32_BE(reader); // Padding? 0
+			unknown100 = ParserUtils.ReadUint32_BE(reader); // 4
+			unknown101 = ParserUtils.ReadUint32_BE(reader); // uint32 max
 
-			var lastEquippedGadget = ParserUtils.ReadUE3String(reader);
-			var unknownString102 = ParserUtils.ReadUE3String(reader); // Last world, maybe?
+			lastEquippedGadget = ParserUtils.ReadUE3String(reader);
+			unknownString102 = ParserUtils.ReadUE3String(reader); // Last world, maybe?
 
-			var unknown103 = reader.ReadBytes(85); // Not sure how to read these, there's a stray byte in here somewhere
+			unknownBytes103 = reader.ReadBytes(85); // Not sure how to read these, there's a stray byte in here somewhere
 
-			var unknown107 = ParserUtils.ReadStringArray(reader); // Objective keys?
-			var unknown108 = reader.ReadBytes(21); // Not sure how to read these, there's a stray byte somewhere in here
-			var unknownString109 = ParserUtils.ReadUE3String(reader); // Last room name?
-			var unknow110 = reader.ReadBytes(12); // Padding?
-			var unknow111 = ParserUtils.ReadUint32_BE(reader); // 14
-			var unknown112 = reader.ReadBytes(20); // Padding?
-			var unknown113 = ParserUtils.ReadUint32_BE(reader); // 0 on TestSave0, 5 on TestSave1 
-			var unknown114 = reader.ReadBytes(56); // Padding?
+			unknownStrings107 = ParserUtils.ReadStringArray(reader); // Objective keys?
+			unknownBytes108 = reader.ReadBytes(21); // Not sure how to read these, there's a stray byte somewhere in here
+			unknownString109 = ParserUtils.ReadUE3String(reader); // Last room name?
+			unknownBytes110 = reader.ReadBytes(12); // Padding?
+			unknown111 = ParserUtils.ReadUint32_BE(reader); // 14
+			unknownBytes112 = reader.ReadBytes(20); // Padding?
+			unknown113 = ParserUtils.ReadUint32_BE(reader); // 0 on TestSave0, 5 on TestSave1 
+			unknownBytes114 = reader.ReadBytes(56); // Padding?
 			radioFrequencies = ParserUtils.ReadStringArray(reader);
 
 			var numFlags115 = ParserUtils.ReadUint32_BE(reader); // 5 on TestSave0, 12 on TestSave1
-			var unknownFlagBytes116 = reader.ReadBytes((int)numFlags115);
+			unknownFlagBytes116 = reader.ReadBytes((int)numFlags115);
 
 			var numFlags117 = ParserUtils.ReadUint32_BE(reader); // 5 on TestSave0, 12 on TestSave1
-			var unknownFlagBytes118 = reader.ReadBytes((int)numFlags117);
+			unknownFlagBytes118 = reader.ReadBytes((int)numFlags117);
 
 			var numInts119 = ParserUtils.ReadUint32_BE(reader); // 5 on TestSave0, 12 on TestSave1
+			unknownInts119 = new uint[numInts119];
 			for (int i = 0; i < numInts119; ++i) {
-				var unknownInt = ParserUtils.ReadUint32_BE(reader);
+				unknownInts119[i] = ParserUtils.ReadUint32_BE(reader);
 			}
 
 			var numFloats120 = ParserUtils.ReadUint32_BE(reader); // 5 on TestSave0, 12 on TestSave1
+			unknownFloats120 = new float[numFloats120];
 			for (int i = 0; i < numFloats120; ++i) {
-				var unknownFloat = ParserUtils.ReadFloat_BE(reader);
+				unknownFloats120[i] = ParserUtils.ReadFloat_BE(reader);
 			}
 
 			var numFloats121 = ParserUtils.ReadUint32_BE(reader); // 5 on TestSave0, 12 on TestSave1
+			unknownFloats121 = new float[numFloats121];
 			for (int i = 0; i < numFloats121; ++i) {
-				var unknownFloat = ParserUtils.ReadFloat_BE(reader);
+				unknownFloats121[i] = ParserUtils.ReadFloat_BE(reader);
 			}
 
 			// These all have something to do with the radio frequencies but no idea what they mean
-			var unknownStrings122 = ParserUtils.ReadStringArray(reader); // FM, Terrestrial, Shortwave, Microwave
-			var unknownStrings123 = ParserUtils.ReadStringArray(reader); // None, PGP, RSA
-			var unknownStrings124 = ParserUtils.ReadStringArray(reader); // Medium, High?
+			unknownStrings122 = ParserUtils.ReadStringArray(reader); // FM, Terrestrial, Shortwave, Microwave
+			unknownStrings123 = ParserUtils.ReadStringArray(reader); // None, PGP, RSA
+			unknownStrings124 = ParserUtils.ReadStringArray(reader); // Medium, High?
 
-			var unknown125 = reader.ReadByte(); // Seems to be a single padding byte
+			unknown125 = reader.ReadByte(); // Seems to be a single padding byte
 
-			var unknown126 = ParserUtils.ReadFloat_BE(reader);
-			var unknown127 = ParserUtils.ReadFloat_BE(reader);
-			var unknown128 = ParserUtils.ReadFloat_BE(reader);
+			unknown126 = ParserUtils.ReadFloat_BE(reader);
+			unknown127 = ParserUtils.ReadFloat_BE(reader);
+			unknown128 = ParserUtils.ReadFloat_BE(reader);
 
 			lastUsedCharacter = ParserUtils.ReadUE3String(reader);
 
-			var unknownStrings129 = ParserUtils.ReadStringArray(reader); // Something else radio station related
-			var unknownStrings130 = ParserUtils.ReadStringArray(reader); // Something else radio station related
-			var unknownStrings131 = ParserUtils.ReadStringArray(reader); // Same entries as the previous one but with _Sequences appended
-			var unknownStrings132 = ParserUtils.ReadStringArray(reader); // Specific frequencies? GothamFM_01, Tyger_Chatter, etc
-			var unknownStrings133 = ParserUtils.ReadStringArray(reader); // Specific radio dialogue? Play_GothamFM_VickiVale03
-			var unknownStrings134 = ParserUtils.ReadStringArray(reader); // Lots of "Unknown"
+			unknownStrings129 = ParserUtils.ReadStringArray(reader); // Something else radio station related
+			unknownStrings130 = ParserUtils.ReadStringArray(reader); // Something else radio station related
+			unknownStrings131 = ParserUtils.ReadStringArray(reader); // Same entries as the previous one but with _Sequences appended
+			unknownStrings132 = ParserUtils.ReadStringArray(reader); // Specific frequencies? GothamFM_01, Tyger_Chatter, etc
+			unknownStrings133 = ParserUtils.ReadStringArray(reader); // Specific radio dialogue? Play_GothamFM_VickiVale03
+			unknownStrings134 = ParserUtils.ReadStringArray(reader); // Lots of "Unknown"
 
 			var numInts135 = ParserUtils.ReadUint32_BE(reader); // 12
+			unknownInts135 = new uint[numInts135];
 			for (int i = 0; i < numInts135; ++i) {
-				var unknownInt = ParserUtils.ReadUint32_BE(reader);
+				unknownInts135[i] = ParserUtils.ReadUint32_BE(reader);
 			}
 
 			var numInts136 = ParserUtils.ReadUint32_BE(reader); // 12
+			unknownInts136 = new uint[numInts136];
 			for (int i = 0; i < numInts136; ++i) {
-				var unknownInt = ParserUtils.ReadUint32_BE(reader);
+				unknownInts136[i] = ParserUtils.ReadUint32_BE(reader);
 			}
 
 			var numInts137 = ParserUtils.ReadUint32_BE(reader); // 12
+			unknownInts137 = new uint[numInts137];
 			for (int i = 0; i < numInts137; ++i) {
-				var unknownInt = ParserUtils.ReadUint32_BE(reader);
+				unknownInts137[i] = ParserUtils.ReadUint32_BE(reader);
 			}
 
 			var numInts138 = ParserUtils.ReadUint32_BE(reader); // 12
+			unknownInts138 = new uint[numInts138];
 			for (int i = 0; i < numInts138; ++i) {
-				var unknownInt = ParserUtils.ReadUint32_BE(reader);
+				unknownInts138[i] = ParserUtils.ReadUint32_BE(reader);
 			}
 
 			var numInts139 = ParserUtils.ReadUint32_BE(reader); // 12
+			unknownInts139 = new uint[numInts139];
 			for (int i = 0; i < numInts139; ++i) {
-				var unknownInt = ParserUtils.ReadUint32_BE(reader);
+				unknownInts139[i] = ParserUtils.ReadUint32_BE(reader);
 			}
 
 			var numInts140 = ParserUtils.ReadUint32_BE(reader); // 12
+			unknownInts140 = new uint[numInts140];
 			for (int i = 0; i < numInts140; ++i) {
-				var unknownInt = ParserUtils.ReadUint32_BE(reader);
+				unknownInts140[i] = ParserUtils.ReadUint32_BE(reader);
 			}
 
-			var unknownBytes143 = reader.ReadBytes(39); // Not sure how to read these, there's 3 stray bytes somewhere in here
+			unknownBytes143 = reader.ReadBytes(39); // Not sure how to read these, there's 3 stray bytes somewhere in here
 
-			var unknownString145 = ParserUtils.ReadUE3String(reader); // Something side mission related
-			var unknownString146 = ParserUtils.ReadUE3String(reader); // Something side mission related
+			unknownString145 = ParserUtils.ReadUE3String(reader); // Something side mission related
+			unknownString146 = ParserUtils.ReadUE3String(reader); // Something side mission related
 
-			var numFlags147 = ParserUtils.ReadUint32_BE(reader); // 0 on TestSave0, 1 on TestSave1
-			var unknownFlagBytes148 = reader.ReadBytes((int)numFlags147);
+			numFlags147 = ParserUtils.ReadUint32_BE(reader); // 0 on TestSave0, 1 on TestSave1
+			unknownFlagBytes148 = reader.ReadBytes((int)numFlags147);
 
-			var unknownBytes149 = reader.ReadBytes(34); // Not sure how to read these, there's 3 stray bytes somewhere in here
+			unknownBytes149 = reader.ReadBytes(34); // Not sure how to read these, there's 3 stray bytes somewhere in here
 
-			var unknown150 = ParserUtils.ReadFloat_BE(reader); // 0.6 on TestSave0, 0.5 on TestSave1
-			var unknown151 = ParserUtils.ReadInt32_BE(reader); // -1
-			var unknown152 = ParserUtils.ReadUint32_BE(reader); // 4 on TestSave0, 8 on TestSave1
-			var unknown153 = ParserUtils.ReadUint32_BE(reader); // 8
+			unknown150 = ParserUtils.ReadFloat_BE(reader); // 0.6 on TestSave0, 0.5 on TestSave1
+			unknown151 = ParserUtils.ReadInt32_BE(reader); // -1
+			unknown152 = ParserUtils.ReadUint32_BE(reader); // 4 on TestSave0, 8 on TestSave1
+			unknown153 = ParserUtils.ReadUint32_BE(reader); // 8
 
-			var unknownBitFlags154 = reader.ReadBytes(10);
+			unknownBitFlags154 = reader.ReadBytes(10);
 
 			var numBitFlags155 = ParserUtils.ReadUint32_BE(reader); // 15
-			var unknownBitFlags156 = reader.ReadBytes((int)numBitFlags155);
+			unknownBitFlags156 = reader.ReadBytes((int)numBitFlags155);
 
 			var numBitFlags157 = ParserUtils.ReadUint32_BE(reader); // 15
-			var unknownBitFlags158 = reader.ReadBytes((int)numBitFlags155);
+			unknownBitFlags158 = reader.ReadBytes((int)numBitFlags155);
 
-			var unknownBytes159 = reader.ReadBytes(33); // Padding? 0
+			unknownBytes159 = reader.ReadBytes(33); // Padding? 0
 
 			var numFloats160 = ParserUtils.ReadUint32_BE(reader); // 3
+			unknownFloats160 = new float[numFloats160];
 			for (int i = 0; i < numFloats160; i++) {
-				var unknownFloat = ParserUtils.ReadFloat_BE(reader);
+				unknownFloats160[i] = ParserUtils.ReadFloat_BE(reader);
 			}
 
 			var numInts161 = ParserUtils.ReadUint32_BE(reader); // 4
+			unknownInts161 = new uint[numInts161];
 			for (int i = 0; i < numInts161; i++) {
-				var unknownInt = ParserUtils.ReadUint32_BE(reader);
+				unknownInts161[i] = ParserUtils.ReadUint32_BE(reader);
 			}
 
 			var numFloats162 = ParserUtils.ReadUint32_BE(reader); // 3
+			unknownFloats162 = new float[numFloats162];
 			for (int i = 0; i < numFloats162; i++) {
-				var unknownFloat = ParserUtils.ReadFloat_BE(reader);
+				unknownFloats162[i] = ParserUtils.ReadFloat_BE(reader);
 			}
 
 			var numFloats163 = ParserUtils.ReadUint32_BE(reader); // 3
+			unknownFloats163 = new float[numFloats163];
 			for (int i = 0; i < numFloats163; i++) {
-				var unknownFloat = ParserUtils.ReadFloat_BE(reader);
+				unknownFloats163[i] = ParserUtils.ReadFloat_BE(reader);
 			}
 
-			var unknown164 = ParserUtils.ReadInt32_BE(reader); // -1 on TestSave0, 100 on TestSave1
-			var unknown165 = ParserUtils.ReadInt32_BE(reader); // -1 on TestSave0, 100 on TestSave1
+			unknown164 = ParserUtils.ReadInt32_BE(reader); // -1 on TestSave0, 100 on TestSave1
+			unknown165 = ParserUtils.ReadInt32_BE(reader); // -1 on TestSave0, 100 on TestSave1
 
-			var unknownByte167 = reader.ReadByte(); // End of section? 1
+			unknownByte167 = reader.ReadByte(); // End of section? 1
 
 			var numFloats168 = ParserUtils.ReadUint32_BE(reader); // 4 on TestSave0, 8 on TestSave1
+			unknownFloats168 = new float[numFloats168];
 			for (int i = 0; i < numFloats168; i++) {
-				var unknownFloat = ParserUtils.ReadFloat_BE(reader);
+				unknownFloats168[i] = ParserUtils.ReadFloat_BE(reader);
 			}
 
 			var unknownCount169 = ParserUtils.ReadUint32_BE(reader); // 4 on TestSave0, 8 on TestSave1
+			unknownFloats169 = new float[unknownCount169];
 			for (int i = 0; i < unknownCount169; i++) {
-				var unknownFloat = ParserUtils.ReadFloat_BE(reader);
+				unknownFloats169[i] = ParserUtils.ReadFloat_BE(reader);
 			}
 
-			var unknownBytes170 = reader.ReadBytes((int)unknownCount169);
+			unknownBytes170 = reader.ReadBytes((int)unknownCount169);
 		}
 
 		private void ParseUnknownStruct(BinaryReader reader) {
