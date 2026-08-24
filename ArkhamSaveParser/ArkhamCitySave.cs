@@ -217,7 +217,9 @@ namespace ArkhamSaveParser {
 		public uint unknown83;
 		public uint unknown84;
 		public uint unknown85;
-		public uint unknown86;
+
+		public List<string> weaponStrings;
+
 		public uint unknown87;
 		public List<string> unknownStrings88;
 		public List<string> unknownStrings89;
@@ -594,9 +596,9 @@ namespace ArkhamSaveParser {
 			unknown76 = ParserUtils.ReadUint32_BE(reader);
 			unknown77 = ParserUtils.ReadUint32_BE(reader);
 
-			if (unknown77 != 1) {
-				//throw new ArgumentException("The file was parsed incorrectly, expected " + 1 + " at section 2 end, got " + unknown77);
-				return; // Not sure if this is right but seems to be EOF for the default resave
+			var bytesRemaining = reader.BaseStream.Length - reader.BaseStream.Position;
+			if (bytesRemaining == 0) {
+				return; // This file has no section 3
 			}
 
 			// ------------------------------- //
@@ -619,7 +621,7 @@ namespace ArkhamSaveParser {
 			worldStrings = ParserUtils.ReadStringArray(reader); // Includes world name/room name, which chapters/LODs should be loaded, etc
 
 			unknown85 = ParserUtils.ReadUint32_BE(reader); // Padding?
-			unknown86 = ParserUtils.ReadUint32_BE(reader); // Padding?
+			weaponStrings = ParserUtils.ReadStringArray(reader); // e.g. StreamedWeapon_CombatRifle, StreamedWeapon_CombatBat
 
 			worldName = ParserUtils.ReadUE3String(reader);
 			roomName = ParserUtils.ReadUE3String(reader);
@@ -798,6 +800,9 @@ namespace ArkhamSaveParser {
 			unknown165 = ParserUtils.ReadInt32_BE(reader); // -1 on TestSave0, 100 on TestSave1
 
 			unknownByte167 = reader.ReadByte(); // End of section? 1
+			if (unknownByte167 == 255) {
+				return; // TODO - Can't parse beyond this in some files
+			}
 
 			var numFloats168 = ParserUtils.ReadUint32_BE(reader); // 4 on TestSave0, 8 on TestSave1
 			unknownFloats168 = new float[numFloats168];
