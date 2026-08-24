@@ -23,6 +23,11 @@ namespace ArkhamSaveParser {
 				return "";
 			}
 
+			var bytesRemaining = reader.BaseStream.Length - reader.BaseStream.Position;
+			if (length > bytesRemaining) {
+				throw new Exception("Tried to parse a string of length " + length.ToString() + " when there were only " + bytesRemaining.ToString() + " bytes remaining in the file");
+			}
+
 			if (length > 0) {
 				var asciiBytes = reader.ReadBytes(length - 1);
 				reader.ReadByte(); // Discard the null terminator byte
@@ -37,6 +42,11 @@ namespace ArkhamSaveParser {
 
 		public static List<string> ReadStringArray(BinaryReader reader) {
 			uint length = ReadUint32_BE(reader);
+			var bytesRemaining = reader.BaseStream.Length - reader.BaseStream.Position;
+			if (length > bytesRemaining) {
+				throw new Exception("Tried to parse a string array of length " + length.ToString() + " when there were only " + bytesRemaining.ToString() + " bytes remaining in the file");
+			}
+
 			List<string> result = new List<string>();
 			for (var i = 0; i < length; ++i) {
 				result.Add(ReadUE3String(reader));
