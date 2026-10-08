@@ -87,4 +87,9 @@ These were read as one uint32 "padding" value, but they are the length or count 
 
 * `new ArkhamCitySave(save, true)` is a tolerant mode. A parsing error is stored in `parseError` / `parseErrorPosition` instead of being thrown, and every field read before the error keeps its value.
 * Checked against 60 saves from the 2025 100% route (intro to Done) plus the test saves and the other uploaded saves. All of them parse cleanly up to `unknownInts140`.
-* Of those, the block after `unknownInts140` (from `unknownBytes143`) matches the parser's layout in about 60 percent. The rest either have `unknown151` different from -1 (`tailWarning`, early game and some missions) or hit a string that is not where the parser expects (`tailError`, mostly late game and a few missions). That block holds optional strings and sometimes whole extra lists, so it needs its own decoding pass.
+* The block after `unknownInts140` is now decoded for all 135 saves tried (2024/2025 routes, Any%, Glitchless, New Game Minus, NG+, NG+ with Catwoman, personal saves, the test saves). Layout:
+  * `unknownBytes143` / `unknownStrings143`: a variable sized region (85 to 135 bytes). It holds small counters and optional strings (`SS_*` side story flags, `OW_*` main mission names, `Riddler_*`). Its end is found by looking for the two 15 entry flag arrays (`unknown155`, `unknown157`) that always sit 26 bytes after the end of the region.
+  * `unknown150` (float) to `unknownBitFlags158`: fixed layout. `unknown151` is -1 in most saves but 14, 15 or 0 in early ones.
+  * `unknownStrings159A/B`, `unknownInts159C/D`: four lists of equal length (0, 1 or 2 entries so far). The strings are always `assassinBlood` and `Museum`.
+  * `unknownBytes159` (17 bytes, always 0), `unknownUints160` (9 words), the two 3 float arrays, two ints, a byte, and two arrays whose count varies (1, 5, 7 or 8 entries).
+* Left undecoded: the exact meaning of the bytes inside `unknownBytes143` (apart from the strings), and the rest of segment 3 after `unknownBytes170`.

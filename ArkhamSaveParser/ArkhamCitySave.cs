@@ -31,7 +31,6 @@ namespace ArkhamSaveParser {
 		public string? parseError; // Only set by the tolerant constructor
 		public string? tailError; // Only set by the tolerant constructor: the last block of segment 3 was not understood
 		public long tailErrorPosition = -1;
-		public string? tailWarning; // Set by either constructor when the last block does not look like the layout this parser expects
 		private bool tolerantTail = false;
 		public long parseErrorPosition = -1; // Offset in the decompressed data where the error happened
 		private BinaryReader? parseReader;
@@ -345,23 +344,22 @@ namespace ArkhamSaveParser {
 		public uint[] unknownInts140;
 		public uint unknown141;
 		public uint unknown142;
-		public byte[] unknownBytes143;
-		public uint unknown144;
-		public string unknownString145;
-		public string unknownString146;
-		public uint numFlags147;
-		public byte[] unknownFlagBytes148;
-		public byte[] unknownBytes149;
+		public byte[] unknownBytes143; // Everything between unknownInts140 and unknown150. Its length varies (85 to 132 bytes), see ParseTail
+		public List<string> unknownStrings143 = []; // Strings found inside unknownBytes143 (SS_* side story flags, OW_* main mission names, ...)
 		public float unknown150;
-		public float unknown151;
-		public float unknown152;
-		public float unknown153;
+		public int unknown151; // -1 in most saves, but 14, 15 or 0 in some early game saves
+		public uint unknown152;
+		public uint unknown153;
 		public byte[] unknownBitFlags154;
 		public uint unknown155;
 		public byte[] unknownBitFlags156;
 		public uint unknown157;
 		public byte[] unknownBitFlags158;
-		public byte[] unknownBytes159;
+		public List<string> unknownStrings159A = []; // 159A-D are four lists with the same length (0, 1 or 2 so far)
+		public List<string> unknownStrings159B = [];
+		public int[] unknownInts159C = [];
+		public int[] unknownInts159D = [];
+		public byte[] unknownBytes159; // 17 bytes, always 0 so far
 		public uint[] unknownUints160 = []; // 9 values, see the comment where they are read
 		public float[] unknownFloats162;
 		public float[] unknownFloats163;
@@ -733,40 +731,45 @@ namespace ArkhamSaveParser {
 			}
 		}
 
-		// Everything after the six 12 entry int arrays. This block does not have one fixed layout: strings
-		// (and in some saves whole lists) appear in it depending on what the player is doing, and the
-		// layout below only matches saves where those are empty or in the arrangement TestSave1 has.
+		// Everything after the six 12 entry int arrays. The part between unknownInts140 and unknown150 has no
+		// fixed size: it holds optional strings (side story flags, main mission names) and a few small
+		// counters. Its end is found by looking ahead for the two 15 entry flag arrays (unknown155 and
+		// unknown157), which every save so far has at a fixed distance after unknown150.
 		private void ParseTail(BinaryReader reader) {
-			unknownBytes143 = reader.ReadBytes(39); // Not sure how to read these, there's 3 stray bytes somewhere in here
+			var start = reader.BaseStream.Position;
+			var rest = reader.ReadBytes((int)(reader.BaseStream.Length - start));
 
-			unknownString145 = ParserUtils.ReadUE3String(reader); // Something side mission related
-			unknownString146 = ParserUtils.ReadUE3String(reader); // Something side mission related
+			var end = FindTailRegionEnd(rest);
+			if (end < 0) {
+				reader.BaseStream.Position = start;
+				throw new Exception("Could not find the end of the variable block after unknownInts140");
+			}
 
-			numFlags147 = ParserUtils.ReadUint32_BE(reader); // 0 on TestSave0, 1 on TestSave1
-			unknownFlagBytes148 = reader.ReadBytes((int)numFlags147);
-
-			unknownBytes149 = reader.ReadBytes(34); // Not sure how to read these, there's 3 stray bytes somewhere in here
+			unknownBytes143 = new byte[end];
+			Array.Copy(rest, unknownBytes143, end);
+			unknownStrings143 = FindStrings(unknownBytes143, 25);
+			reader.BaseStream.Position = start + end;
 
 			unknown150 = ParserUtils.ReadFloat_BE(reader); // 0.6 on TestSave0, 0.5 on TestSave1
-			unknown151 = ParserUtils.ReadInt32_BE(reader); // -1
-			if (unknown151 != -1) {
-				// Every save with the layout below has -1 here. Early game saves (and saves made during some
-				// missions) have extra data in this block, so the fields between unknownBytes143 and here
-				// are probably not lined up with the real data in this save.
-				tailWarning = "unknown151 is " + unknown151 + " instead of -1, the fields from unknownBytes143 to unknown153 are probably misaligned in this save";
-			}
+			unknown151 = ParserUtils.ReadInt32_BE(reader);
 			unknown152 = ParserUtils.ReadUint32_BE(reader); // 4 on TestSave0, 8 on TestSave1
 			unknown153 = ParserUtils.ReadUint32_BE(reader); // 8
 
 			unknownBitFlags154 = reader.ReadBytes(10);
 
-			var numBitFlags155 = ParserUtils.ReadUint32_BE(reader); // 15
-			unknownBitFlags156 = reader.ReadBytes((int)numBitFlags155);
+			unknown155 = ParserUtils.ReadUint32_BE(reader); // 15
+			unknownBitFlags156 = reader.ReadBytes((int)unknown155);
 
-			var numBitFlags157 = ParserUtils.ReadUint32_BE(reader); // 15
-			unknownBitFlags158 = reader.ReadBytes((int)numBitFlags157);
+			unknown157 = ParserUtils.ReadUint32_BE(reader); // 15
+			unknownBitFlags158 = reader.ReadBytes((int)unknown157);
 
-			unknownBytes159 = reader.ReadBytes(33); // Padding? 0
+			// Four lists of the same length: two string lists (always assassinBlood / Museum so far) and two int lists
+			unknownStrings159A = ParserUtils.ReadStringArray(reader);
+			unknownStrings159B = ParserUtils.ReadStringArray(reader);
+			unknownInts159C = ReadIntList(reader);
+			unknownInts159D = ReadIntList(reader);
+
+			unknownBytes159 = reader.ReadBytes(17); // 0
 
 			// Always nine 4 byte values. These used to be read as a float array (count 3) followed by an
 			// int array (count 4), but the first value is not a count: it is 1 in an early game save
@@ -813,6 +816,58 @@ namespace ArkhamSaveParser {
 			}
 
 			unknownBytes170 = reader.ReadBytes((int)unknownCount169);
+		}
+
+		private static int[] ReadIntList(BinaryReader reader) {
+			var count = ParserUtils.ReadUint32_BE(reader);
+			if ((long)count * 4 > reader.BaseStream.Length - reader.BaseStream.Position) {
+				throw new Exception("Tried to parse an int array of length " + count.ToString() + " when there were not enough bytes remaining in the file");
+			}
+			var result = new int[count];
+			for (var i = 0; i < count; ++i) {
+				result[i] = ParserUtils.ReadInt32_BE(reader);
+			}
+			return result;
+		}
+
+		// Looks for "15, 15 bytes, 15, 15 bytes" (unknown155 and unknown157) and returns the offset where
+		// unknown150 starts, which is 26 bytes before it. Returns -1 if it is not there.
+		private static int FindTailRegionEnd(byte[] data) {
+			for (var i = 60; i + 38 <= data.Length; ++i) {
+				if (IsUint32(data, i, 15) && IsUint32(data, i + 19, 15)) {
+					return i - 26;
+				}
+			}
+			return -1;
+		}
+
+		private static bool IsUint32(byte[] data, int offset, uint value) {
+			return data[offset] == (byte)(value >> 24) && data[offset + 1] == (byte)(value >> 16) && data[offset + 2] == (byte)(value >> 8) && data[offset + 3] == (byte)value;
+		}
+
+		// Finds UE3 style strings (length including the null terminator, then plain ASCII) by trying every offset.
+		private static List<string> FindStrings(byte[] data, int startOffset) {
+			var result = new List<string>();
+			var i = startOffset;
+			while (i + 4 <= data.Length) {
+				var length = (data[i] << 24) | (data[i + 1] << 16) | (data[i + 2] << 8) | data[i + 3];
+				if (length >= 4 && length <= 200 && i + 4 + length <= data.Length && data[i + 4 + length - 1] == 0) {
+					var printable = true;
+					for (var j = i + 4; j < i + 4 + length - 1; ++j) {
+						if (data[j] < 32 || data[j] >= 127) {
+							printable = false;
+							break;
+						}
+					}
+					if (printable) {
+						result.Add(Encoding.ASCII.GetString(data, i + 4, length - 1));
+						i += 4 + length;
+						continue;
+					}
+				}
+				++i;
+			}
+			return result;
 		}
 
 		private byte[] ParseUnknownStruct(BinaryReader reader) {
