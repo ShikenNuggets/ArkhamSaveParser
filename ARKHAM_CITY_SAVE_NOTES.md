@@ -68,6 +68,12 @@ Nine entries each. Area order is OWA, OWB, OWC, OWD, OWE, Steel, Museum, Underwo
 * `unknownUints38` to `unknownUints46`: 60 entries each (5 blocks of 12), values 0, 1 or 2. Possibly Riddler's Revenge challenge map states.
 * `unknownUints50` (11 entries, grows with progress) and `unknownUints51` (always 0).
 * `unknown76`, `unknown77`: 1 in every save seen.
+* The nine 4 byte values just before the `-1, -1` marker in segment 3 (`unknownUints160`). They were read as a 3 float array plus a 4 int array, which only works for later saves. Early game values differ (`1, F, 11, 9, 0, 0, 0, 0, -1` right after the Courthouse versus `3, F, 11, 11, 4, 3, 0, 0, 8` in TestSave0), so they are a fixed block of nine and the first value is not a count.
 * `progressStrings[0]` (`580/852`) and `[3]` (`x/94`), and what `unknownFloats1[0..14]` are. `unknownFloats1[15..17]` equal the numbers in `progressStrings[1..3]`, but without the Catwoman additions (400, 27, 94 instead of 440, 33, 94).
 * The challenge map structs (`unknownStructs`). Their ids look like challenge map ids 11-22, 31-42 and 64-77, the same numbers as the `ChalAvail_N` flag strings.
 * Almost the whole tail of segment 3 (about 39 KB in a late save).
+
+## Parser robustness
+
+* `new ArkhamCitySave(save, true)` is a tolerant mode. A parsing error is stored in `parseError` / `parseErrorPosition` instead of being thrown, and every field read before the error keeps its value.
+* `7dbb847a-61_-_Done.sgd` (a 100% save) still fails near the end of segment 3, after `unknownInts140` and before `unknownString145`. The 39 byte block there has a different size in that save. Not looked into yet.

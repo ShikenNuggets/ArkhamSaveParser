@@ -9,6 +9,28 @@ namespace ArkhamSaveParser {
 			ParseSave();
 		}
 
+		/// <summary>
+		/// When tolerant is true a parsing error is not thrown. Instead it is stored in parseError (with the
+		/// byte offset in parseErrorPosition) and every field that was read before the error keeps its value.
+		/// </summary>
+		public ArkhamCitySave(CompressedSave save, bool tolerant) : base(save) {
+			if (!tolerant) {
+				ParseSave();
+				return;
+			}
+
+			try {
+				ParseSave();
+			} catch (Exception ex) {
+				parseError = ex.Message;
+				parseErrorPosition = parseReader != null ? parseReader.BaseStream.Position : -1;
+			}
+		}
+
+		public string? parseError; // Only set by the tolerant constructor
+		public long parseErrorPosition = -1; // Offset in the decompressed data where the error happened
+		private BinaryReader? parseReader;
+
 		public string GetDateString() {
 			return year.ToString("D4") + "-" + month.ToString("D2") + "-" + day.ToString("D2");
 		}
@@ -335,8 +357,7 @@ namespace ArkhamSaveParser {
 		public uint unknown157;
 		public byte[] unknownBitFlags158;
 		public byte[] unknownBytes159;
-		public float[] unknownFloats160;
-		public uint[] unknownInts161;
+		public uint[] unknownUints160 = []; // 9 values, see the comment where they are read
 		public float[] unknownFloats162;
 		public float[] unknownFloats163;
 		public int unknown164;
@@ -349,6 +370,7 @@ namespace ArkhamSaveParser {
 
 		private void ParseSave() {
 			var reader = new BinaryReader(new MemoryStream(rawData));
+			parseReader = reader;
 
 			constant1 = ParserUtils.ReadUint32_BE(reader);
 			if (constant1 != 16) {
@@ -715,20 +737,20 @@ namespace ArkhamSaveParser {
 			unknownBitFlags156 = reader.ReadBytes((int)numBitFlags155);
 
 			var numBitFlags157 = ParserUtils.ReadUint32_BE(reader); // 15
-			unknownBitFlags158 = reader.ReadBytes((int)numBitFlags155);
+			unknownBitFlags158 = reader.ReadBytes((int)numBitFlags157);
 
 			unknownBytes159 = reader.ReadBytes(33); // Padding? 0
 
-			var numFloats160 = ParserUtils.ReadUint32_BE(reader); // 3
-			unknownFloats160 = new float[numFloats160];
-			for (int i = 0; i < numFloats160; i++) {
-				unknownFloats160[i] = ParserUtils.ReadFloat_BE(reader);
-			}
-
-			var numInts161 = ParserUtils.ReadUint32_BE(reader); // 4
-			unknownInts161 = new uint[numInts161];
-			for (int i = 0; i < numInts161; i++) {
-				unknownInts161[i] = ParserUtils.ReadUint32_BE(reader);
+			// Always nine 4 byte values. These used to be read as a float array (count 3) followed by an
+			// int array (count 4), but the first value is not a count: it is 1 in an early game save
+			// (Courthouse) and 3 in later ones, and the fifth is 0 early and 4 later. Reading them as
+			// arrays made the parser run off the end of the file on early game saves.
+			//   TestSave0:  3, 1106649460 (float 30.77), 11, 11, 4, 3, 0, 0, 8
+			//   Courthouse: 1, 1091856018 (float 9.28),  11,  9, 0, 0, 0, 0, 4294967295 (-1)
+			//   TestSave1:  3, 0, 0, 0, 4, 4, 3, 0, 650
+			unknownUints160 = new uint[9];
+			for (var i = 0; i < unknownUints160.Length; ++i) {
+				unknownUints160[i] = ParserUtils.ReadUint32_BE(reader);
 			}
 
 			var numFloats162 = ParserUtils.ReadUint32_BE(reader); // 3

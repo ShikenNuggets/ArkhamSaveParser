@@ -71,6 +71,50 @@ namespace ArkhamSaveParser.Tests {
 			//Assert.AreEqual("Playable_Batman", citySave.GetLastUsedCharacter());
 		}
 
+		[TestMethod]
+		public void ParseEarlyGameCourthouseSave() {
+			// Saved right after the Courthouse, very early in the game. The nine values before the
+			// "-1, -1" marker in segment 3 are laid out differently than in the later test saves.
+			var compressedSave = new CompressedSave("TestData/City/CourthouseSave.sgd");
+			var citySave = new ArkhamCitySave(compressedSave);
+
+			Assert.AreEqual("2025-12-07", citySave.GetDateString());
+			Assert.AreEqual("0/852", citySave.GetProgressionString());
+			Assert.AreEqual("5/400", citySave.GetRiddlesString());
+			Assert.AreEqual("Court", citySave.GetWorldName());
+			Assert.AreEqual("Court_B1", citySave.GetRoomName());
+			Assert.AreEqual("Playable_Batman", citySave.GetLastUsedCharacter());
+
+			Assert.AreEqual(9, citySave.unknownUints160.Length);
+			Assert.AreEqual(1u, citySave.unknownUints160[0]);
+			Assert.AreEqual(11u, citySave.unknownUints160[2]);
+			Assert.AreEqual(9u, citySave.unknownUints160[3]);
+
+			Assert.AreEqual(1u, citySave.pickupCount);
+			Assert.AreEqual(1840.0f, citySave.xp);
+			Assert.AreEqual(2000.0f, citySave.xpForNextUpgrade);
+
+			// Four physical challenges are beaten so far
+			Assert.AreEqual(4, citySave.GetBeatenBatChallengeCount());
+			Assert.IsTrue(citySave.IsBatChallengeBeaten(7));
+			Assert.IsTrue(citySave.IsBatChallengeBeaten(8));
+			Assert.IsTrue(citySave.IsBatChallengeBeaten(9));
+			Assert.IsTrue(citySave.IsBatChallengeBeaten(18));
+			Assert.IsFalse(citySave.IsBatChallengeBeaten(3));
+			Assert.AreEqual(2.97f, citySave.GetBatChallengeBest()[3], 0.01f);
+		}
+
+		[TestMethod]
+		public void TolerantParseKeepsFieldsBeforeAnError() {
+			// A save that parses fine reports no error in tolerant mode
+			var compressedSave = new CompressedSave("TestData/City/CourthouseSave.sgd");
+			var citySave = new ArkhamCitySave(compressedSave, true);
+
+			Assert.IsNull(citySave.parseError);
+			Assert.AreEqual(-1, citySave.parseErrorPosition);
+			Assert.AreEqual("Court", citySave.GetWorldName());
+		}
+
 		private static uint Sum(uint[] values) {
 			uint total = 0;
 			for (var i = 0; i < values.Length; ++i) {
