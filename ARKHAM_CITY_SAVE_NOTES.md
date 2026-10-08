@@ -61,6 +61,16 @@ Nine entries each. Area order is OWA, OWB, OWC, OWD, OWE, Steel, Museum, Underwo
 | `camerasBrokenPerArea` | Sums to `numCamerasBroken`, OWD has none |
 | `riddlesSolvedPerArea` | 14, 9, 9, 5, 11, 7, 8, 6 = 69 riddle collectibles |
 
+## Fields that turned out not to be padding
+
+These were read as one uint32 "padding" value, but they are the length or count of a string or string array that is empty early in the game. Reading them as a uint32 only worked on saves where they were 0.
+
+| Old name | New name | Seen holding |
+|---|---|---|
+| `unknown85` | `unknownStrings85` | `Steel_B1`, `Steel_B1_Fascade`, ... (a second list of level names, next to `worldStrings`) |
+| `unknown87` | `unknownString87` | `Steel_B1` |
+| `unknown92` | `unknownStrings92` | `Frontend.Objectives.CH2_Sub_2_Trail1` (active objectives) |
+
 ## Still unknown
 
 * `unknown59`, `unknown60`: the two members before `BrokenGrundyHeadTally` (12 and 12 in later saves). Scroll up in the struct dump to name them.
@@ -76,4 +86,5 @@ Nine entries each. Area order is OWA, OWB, OWC, OWD, OWE, Steel, Museum, Underwo
 ## Parser robustness
 
 * `new ArkhamCitySave(save, true)` is a tolerant mode. A parsing error is stored in `parseError` / `parseErrorPosition` instead of being thrown, and every field read before the error keeps its value.
-* `7dbb847a-61_-_Done.sgd` (a 100% save) still fails near the end of segment 3, after `unknownInts140` and before `unknownString145`. The 39 byte block there has a different size in that save. Not looked into yet.
+* Checked against 60 saves from the 2025 100% route (intro to Done) plus the test saves and the other uploaded saves. All of them parse cleanly up to `unknownInts140`.
+* Of those, the block after `unknownInts140` (from `unknownBytes143`) matches the parser's layout in about 60 percent. The rest either have `unknown151` different from -1 (`tailWarning`, early game and some missions) or hit a string that is not where the parser expects (`tailError`, mostly late game and a few missions). That block holds optional strings and sometimes whole extra lists, so it needs its own decoding pass.

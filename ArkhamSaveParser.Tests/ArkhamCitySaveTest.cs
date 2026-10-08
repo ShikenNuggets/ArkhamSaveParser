@@ -115,6 +115,38 @@ namespace ArkhamSaveParser.Tests {
 			Assert.AreEqual("Court", citySave.GetWorldName());
 		}
 
+		[TestMethod]
+		public void ParseEnterChurchSaveObjectiveList() {
+			// Field 92 used to be read as a padding uint32. It is the count of a string array, and it is not empty here.
+			var compressedSave = new CompressedSave("TestData/City/EnterChurchSave.sgd");
+			var citySave = new ArkhamCitySave(compressedSave, true);
+
+			Assert.IsNull(citySave.parseError);
+			Assert.AreEqual("OW", citySave.GetWorldName());
+			Assert.AreEqual("OW_A2", citySave.GetRoomName());
+			Assert.AreEqual("6/400", citySave.GetRiddlesString());
+			Assert.AreEqual(1, citySave.unknownStrings92.Count);
+			Assert.AreEqual("Frontend.Objectives.CH2_Sub_2_Trail1", citySave.unknownStrings92[0]);
+			Assert.AreEqual(46, citySave.GetBatChallengeBeaten().Length); // The challenge arrays come before these fields
+		}
+
+		[TestMethod]
+		public void ParseSteelMillSaveLevelLists() {
+			// Fields 85 and 87 used to be read as padding. They are a string array and a string, both empty early on.
+			var compressedSave = new CompressedSave("TestData/City/SteelMillSave.sgd");
+			var citySave = new ArkhamCitySave(compressedSave, true);
+
+			Assert.IsNull(citySave.parseError);
+			Assert.AreEqual("Steel", citySave.GetWorldName());
+			Assert.AreEqual("Steel_C1", citySave.GetRoomName());
+			Assert.AreEqual("24/400", citySave.GetRiddlesString());
+			Assert.AreEqual(4, citySave.unknownStrings85.Count);
+			Assert.AreEqual("Steel_B1", citySave.unknownStrings85[0]);
+			Assert.AreEqual("Steel_B1", citySave.unknownString87);
+			Assert.AreEqual(1, citySave.unknownStrings92.Count);
+			Assert.AreEqual("Frontend.Objectives.CH2_Sub_5_Steel", citySave.unknownStrings92[0]);
+		}
+
 		private static uint Sum(uint[] values) {
 			uint total = 0;
 			for (var i = 0; i < values.Length; ++i) {

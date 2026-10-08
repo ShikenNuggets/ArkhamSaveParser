@@ -14,6 +14,7 @@ namespace ArkhamSaveParser {
 		/// byte offset in parseErrorPosition) and every field that was read before the error keeps its value.
 		/// </summary>
 		public ArkhamCitySave(CompressedSave save, bool tolerant) : base(save) {
+			tolerantTail = tolerant;
 			if (!tolerant) {
 				ParseSave();
 				return;
@@ -28,6 +29,10 @@ namespace ArkhamSaveParser {
 		}
 
 		public string? parseError; // Only set by the tolerant constructor
+		public string? tailError; // Only set by the tolerant constructor: the last block of segment 3 was not understood
+		public long tailErrorPosition = -1;
+		public string? tailWarning; // Set by either constructor when the last block does not look like the layout this parser expects
+		private bool tolerantTail = false;
 		public long parseErrorPosition = -1; // Offset in the decompressed data where the error happened
 		private BinaryReader? parseReader;
 
@@ -230,7 +235,7 @@ namespace ArkhamSaveParser {
 		public uint unknown82;
 		public uint unknown83;
 		public uint unknown84;
-		public uint unknown85;
+		public List<string> unknownStrings85 = []; // Second list of level names, empty early in the game (OW_B1, Steel_B1, ...)
 
 		// ---- Segment 2: per-area collection data (area order: OWA, OWB, OWC, OWD, OWE, Steel, Museum, Underworld, +1 unused slot) ----
 		public byte[] unknownBytes35 = []; // 9 bytes, 0-31, looks like a per-area bit mask
@@ -284,12 +289,12 @@ namespace ArkhamSaveParser {
 
 		public List<string> weaponStrings;
 
-		public uint unknown87;
+		public string unknownString87 = ""; // Empty early in the game, a level name later (e.g. Steel_B1)
 		public List<string> unknownStrings88;
 		public List<string> unknownStrings89;
 		public byte[] unknownBytes90;
 		public byte[] unknownBytes91;
-		public uint unknown92;
+		public List<string> unknownStrings92 = []; // Active objectives, empty until the first objective is active (e.g. Frontend.Objectives.CH2_Sub_2_Trail1)
 		public uint unknown93;
 		public List<string> unknownStrings94;
 		public string unknownString95;
@@ -589,13 +594,16 @@ namespace ArkhamSaveParser {
 
 			worldStrings = ParserUtils.ReadStringArray(reader); // Includes world name/room name, which chapters/LODs should be loaded, etc
 
-			unknown85 = ParserUtils.ReadUint32_BE(reader); // Padding?
+			// This used to be read as a uint32 "padding" value. It is the count of a string array, and the
+			// count is 0 in early saves, which is why it looked like padding.
+			unknownStrings85 = ParserUtils.ReadStringArray(reader);
 			weaponStrings = ParserUtils.ReadStringArray(reader); // e.g. StreamedWeapon_CombatRifle, StreamedWeapon_CombatBat
 
 			worldName = ParserUtils.ReadUE3String(reader);
 			roomName = ParserUtils.ReadUE3String(reader);
 
-			unknown87 = ParserUtils.ReadUint32_BE(reader); // Padding?
+			// Same as above: the 0 was the length of an empty string
+			unknownString87 = ParserUtils.ReadUE3String(reader);
 
 			unknownStrings88 = ParserUtils.ReadStringArray(reader); // OW flags?
 			unknownStrings89 = ParserUtils.ReadStringArray(reader);
@@ -610,7 +618,8 @@ namespace ArkhamSaveParser {
 
 			currentObjectiveTag = ParserUtils.ReadUE3String(reader);
 
-			unknown92 = ParserUtils.ReadUint32_BE(reader); // Padding?
+			// Same as above: the 0 was the count of an empty string array
+			unknownStrings92 = ParserUtils.ReadStringArray(reader);
 			unknownStrings94 = ParserUtils.ReadStringArray(reader); // Something objective related?
 			unknownString95 = ParserUtils.ReadUE3String(reader); // Something side mission related?
 
@@ -716,6 +725,18 @@ namespace ArkhamSaveParser {
 				unknownInts140[i] = ParserUtils.ReadUint32_BE(reader);
 			}
 
+			try {
+				ParseTail(reader);
+			} catch (Exception ex) when (tolerantTail) {
+				tailError = ex.Message;
+				tailErrorPosition = reader.BaseStream.Position;
+			}
+		}
+
+		// Everything after the six 12 entry int arrays. This block does not have one fixed layout: strings
+		// (and in some saves whole lists) appear in it depending on what the player is doing, and the
+		// layout below only matches saves where those are empty or in the arrangement TestSave1 has.
+		private void ParseTail(BinaryReader reader) {
 			unknownBytes143 = reader.ReadBytes(39); // Not sure how to read these, there's 3 stray bytes somewhere in here
 
 			unknownString145 = ParserUtils.ReadUE3String(reader); // Something side mission related
@@ -728,6 +749,12 @@ namespace ArkhamSaveParser {
 
 			unknown150 = ParserUtils.ReadFloat_BE(reader); // 0.6 on TestSave0, 0.5 on TestSave1
 			unknown151 = ParserUtils.ReadInt32_BE(reader); // -1
+			if (unknown151 != -1) {
+				// Every save with the layout below has -1 here. Early game saves (and saves made during some
+				// missions) have extra data in this block, so the fields between unknownBytes143 and here
+				// are probably not lined up with the real data in this save.
+				tailWarning = "unknown151 is " + unknown151 + " instead of -1, the fields from unknownBytes143 to unknown153 are probably misaligned in this save";
+			}
 			unknown152 = ParserUtils.ReadUint32_BE(reader); // 4 on TestSave0, 8 on TestSave1
 			unknown153 = ParserUtils.ReadUint32_BE(reader); // 8
 
