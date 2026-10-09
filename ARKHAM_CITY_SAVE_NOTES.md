@@ -97,3 +97,21 @@ These were read as one uint32 "padding" value, but they are the length or count 
   * `footerTail` repeats a 77 byte pattern (the bytes at offsets 549/626, 560/637, 571/648, 725/802, ... vary together), so it is probably an array of four 77 byte records. The Footer bytes tab in the viewer and `dump/footer_summary.txt` list every non-zero offset and its values across saves.
 * Segment 3 can appear more than once. After the 830 byte block there is either nothing (normal saves) or another complete copy of segment 3 (starts with the 0x81 header again, ends with its own 830 byte block). New Game Plus / New Game Minus saves have two copies, New Game Plus with Catwoman has three; the last one is always `PDLCIN` / `PDLCIN_B3`. The parser reads them into `additionalSegment3s` (the second copy holds the third). All 135 saves tried end exactly at the end of their last 830 byte block.
 * Left undecoded: what the individual bytes inside `unknownBytes143` (apart from the strings), `footerHeader` and `footerTail` mean, and the 17 bytes in `unknownBytes159`.
+
+## Property names from the Cheat Engine ObjectsDump (work in progress)
+
+The save is a custom serialization of three UE3 objects in this order:
+RPersistentOptions, RPersistentShared, RPersistentData (not in offset order).
+Segment 3 (starts 0x81) is RPersistentData.
+
+Verified by matching bytes across many saves (segment 3, after FlagNames):
+- StoryDLCImageId, SaveGameChapter, two bytes (IsSaveGameStartPoint, StorySynopsisState)
+- Description (localized area name, e.g. "Centro Médico")
+- two bytes, then PrimaryObjective ("Frontend.Objectives.CH3b_Main_1_Rescue_Freeze")
+- ObjectivesIncomplete, ObjectivesMapObj, ObjectivesNewMapObj (string arrays)
+- CurrentGadgetName, LastScannedLocMap, LastScannedLoc
+- Radio block follows offset order, then ProgressCharacter*
+
+Candidate only (not yet named in C#): the 85/21/12/20/56-byte chunks that follow,
+Options-stream Day/Month/Year/LocationID/IvyStage2Reached/CombatDDA, and the
+Shared-stream counters. These need in-game Cheat Engine correlation to be certain.
