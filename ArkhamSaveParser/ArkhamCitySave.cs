@@ -28,6 +28,26 @@ namespace ArkhamSaveParser {
 			}
 		}
 
+		private ArkhamCitySave(byte[] raw, long position, bool tolerant) : base(raw) {
+			tolerantTail = tolerant;
+			var reader = new BinaryReader(new MemoryStream(rawData));
+			reader.BaseStream.Position = position;
+			parseReader = reader;
+			segment3Start = position;
+			if (!tolerant) {
+				ParseSegment3(reader);
+				return;
+			}
+
+			try {
+				ParseSegment3(reader);
+			} catch (Exception ex) {
+				parseError = ex.Message;
+				parseErrorPosition = reader.BaseStream.Position;
+			}
+		}
+
+		public long segment3Start = -1; // Offset of this copy of segment 3 in the decompressed data (-1 for the first one: see worldStrings)
 		public string? parseError; // Only set by the tolerant constructor
 		public string? tailError; // Only set by the tolerant constructor: the last block of segment 3 was not understood
 		public long tailErrorPosition = -1;
@@ -369,7 +389,16 @@ namespace ArkhamSaveParser {
 		public byte unknownByte167;
 		public float[] unknownFloats168;
 		public float[] unknownFloats169;
-		public byte[] unknownBytes170;
+
+		// The fixed size (830 byte) block that ends every copy of segment 3. unknownFloats168/169 used to be followed by a
+		// byte array here, but the block does not depend on their length. Layout: 89 bytes, six lists of 16 ints, 333 bytes.
+		public byte[] footerHeader = [];
+		public int[][] footerIntLists = [];
+		public byte[] footerTail = [];
+
+		// New Game+ and New Game Minus saves (and some others) contain more than one copy of segment 3, one after the other.
+		// Each copy is parsed with the same code, so this holds the second copy (which in turn holds the third).
+		public List<ArkhamCitySave> additionalSegment3s = [];
 
 		private void ParseSave() {
 			var reader = new BinaryReader(new MemoryStream(rawData));
@@ -573,6 +602,10 @@ namespace ArkhamSaveParser {
 				return; // This file has no section 3
 			}
 
+			ParseSegment3(reader);
+		}
+
+		private void ParseSegment3(BinaryReader reader) {
 			// ------------------------------- //
 			// ---------- Segment 3 ---------- //
 			// ------------------------------- //
@@ -815,7 +848,45 @@ namespace ArkhamSaveParser {
 				unknownFloats169[i] = ParserUtils.ReadFloat_BE(reader);
 			}
 
-			unknownBytes170 = reader.ReadBytes((int)unknownCount169);
+			footerHeader = reader.ReadBytes(89);
+			footerIntLists = new int[6][];
+			for (var i = 0; i < footerIntLists.Length; ++i) {
+				footerIntLists[i] = ReadIntList(reader);
+			}
+			footerTail = reader.ReadBytes(333);
+
+			if (reader.BaseStream.Position < reader.BaseStream.Length) {
+				// Another copy of segment 3 follows
+				var extra = new ArkhamCitySave(rawData, reader.BaseStream.Position, tolerantTail);
+				additionalSegment3s.Add(extra);
+				if (extra.parseError != null && parseError == null) {
+					parseError = "In additional segment 3 (byte " + extra.segment3Start + "): " + extra.parseError;
+					parseErrorPosition = extra.parseErrorPosition;
+				}
+				if (extra.tailError != null && tailError == null) {
+					tailError = "In additional segment 3 (byte " + extra.segment3Start + "): " + extra.tailError;
+					tailErrorPosition = extra.tailErrorPosition;
+				}
+			}
+		}
+
+		/// <summary>The 830 byte block that ends this copy of segment 3, as it is stored in the save (header, six counted int lists, tail).</summary>
+		public byte[] GetFooterBytes() {
+			var bytes = new List<byte>(830);
+			bytes.AddRange(footerHeader);
+			foreach (var list in footerIntLists) {
+				bytes.AddRange(ToBigEndian((uint)list.Length));
+				foreach (var value in list) {
+					bytes.AddRange(ToBigEndian((uint)value));
+				}
+			}
+
+			bytes.AddRange(footerTail);
+			return bytes.ToArray();
+		}
+
+		private static byte[] ToBigEndian(uint value) {
+			return new byte[] { (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)value };
 		}
 
 		private static int[] ReadIntList(BinaryReader reader) {
