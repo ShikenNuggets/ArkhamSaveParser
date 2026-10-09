@@ -66,7 +66,7 @@
                     </Grid.RowDefinitions>
                     <DataGrid x:Name="FieldGrid" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
                               CanUserSortColumns="False" CanUserResizeRows="False" HeadersVisibility="Column" SelectionMode="Single"
-                              SelectionUnit="FullRow" GridLinesVisibility="Horizontal" LoadingRow="Grid_LoadingRow"
+                              SelectionUnit="FullRow" GridLinesVisibility="All" HorizontalGridLinesBrush="{DynamicResource GridLineBrush}" VerticalGridLinesBrush="{DynamicResource GridLineBrush}" LoadingRow="Grid_LoadingRow"
                               SelectionChanged="FieldGrid_SelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Field" Binding="{Binding Name}" IsReadOnly="True" Width="240" ElementStyle="{StaticResource MonoUnknown}" />
@@ -84,7 +84,7 @@
             <TabItem Header="Physical challenges">
                 <DataGrid x:Name="ChallengeGrid" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
                           CanUserSortColumns="False" CanUserResizeRows="False" HeadersVisibility="Column" SelectionMode="Single"
-                          SelectionUnit="FullRow" GridLinesVisibility="Horizontal" LoadingRow="Grid_LoadingRow">
+                          SelectionUnit="FullRow" GridLinesVisibility="All" HorizontalGridLinesBrush="{DynamicResource GridLineBrush}" VerticalGridLinesBrush="{DynamicResource GridLineBrush}" LoadingRow="Grid_LoadingRow">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Slot" Binding="{Binding Slot}" IsReadOnly="True" Width="60" ElementStyle="{StaticResource Mono}" />
                         <DataGridTextColumn Header="Current (float)" Binding="{Binding Current}" IsReadOnly="True" Width="130" ElementStyle="{StaticResource Mono}" />
@@ -98,7 +98,7 @@
             <TabItem Header="Footer bytes">
                 <DataGrid x:Name="FooterGrid" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
                           CanUserSortColumns="False" CanUserResizeRows="False" HeadersVisibility="Column" SelectionMode="Single"
-                          SelectionUnit="FullRow" GridLinesVisibility="Horizontal" LoadingRow="Grid_LoadingRow">
+                          SelectionUnit="FullRow" GridLinesVisibility="All" HorizontalGridLinesBrush="{DynamicResource GridLineBrush}" VerticalGridLinesBrush="{DynamicResource GridLineBrush}" LoadingRow="Grid_LoadingRow">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Copy" Binding="{Binding Copy}" IsReadOnly="True" Width="60" ElementStyle="{StaticResource Mono}" />
                         <DataGridTextColumn Header="Offset" Binding="{Binding Offset}" IsReadOnly="True" Width="80" ElementStyle="{StaticResource Mono}" />

@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Reflection;
 using System.Text;
+using System.IO;
 using ArkhamSaveParser;
 
 namespace ArkhamSaveViewer {

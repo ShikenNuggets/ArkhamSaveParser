@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using System.IO;
 
 namespace ArkhamSaveViewer {
 	/// <summary>Your own labels for fields, stored in labels.json next to the exe.</summary>

@@ -49,7 +49,8 @@ namespace ArkhamSaveViewer {
 			app.Resources["UnknownBrush"] = Brush(dark ? "#FF8A80" : "#B22222");
 			app.Resources["ErrorBrush"] = Brush(dark ? "#FF6B6B" : "#B22222");
 			app.Resources["WarnBrush"] = Brush(dark ? "#FFB454" : "#C86400");
-		}
+            app.Resources["GridLineBrush"] = Brush(dark ? "#5C5C66" : "#B8B8B8");
+        }
 
 		private static bool SystemUsesDarkMode() {
 			try {
