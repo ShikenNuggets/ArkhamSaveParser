@@ -5,6 +5,10 @@ using System.Security.Cryptography;
 
 namespace ArkhamSaveParser {
 	public class DecompressedSave {
+		protected DecompressedSave(byte[] decompressedData) {
+			rawData = decompressedData;
+		}
+
 		public DecompressedSave(CompressedSave compressedSave) {
 			if (compressedSave.TotalDecompressedSize <= 0) {
 				throw new InvalidOperationException("Invalid total decompressed size");
