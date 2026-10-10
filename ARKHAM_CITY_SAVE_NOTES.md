@@ -4,17 +4,17 @@ What is known about the decompressed Arkham City save layout, and how sure we ar
 All numbers are big endian. "Slot" means an index into an array.
 
 Evidence used: the four saves in `TestData/City`, two more full saves (late game, one
-with all physical challenges done), and a Cheat Engine structure dump of the game's
-`RExperienceSystem` object (UE3 class and member names).
+with all physical challenges done), and a Cheat Engine objects dump of the game’s classes (UE3 class and member names; 
+the save’s fields are the members of RPersistentOptions, RPersistentShared and RPersistentData).
 
 ## Container
 
 * A 40 byte wrapper header, then LZO segments that each start with `9E 2A 83 C1`.
 * After the last segment the file is zeros until the end (294912 bytes total). No compressed data is left over.
 
-## Experience / statistics block (high confidence)
+## Experience / statistics block (semi-high confidence)
 
-These fields sit in the same order as the members of `RExperienceSystem`, and their values
+These fields sit in the same order as the members of `RPersistentShared and RPersistentData`, and their values
 match the in-memory struct for a loaded save.
 
 | Field | Meaning | Evidence |
@@ -38,14 +38,13 @@ Three arrays of 46 entries, each stored as a 4 byte count followed by the values
 | Array | Type | Meaning |
 |---|---|---|
 | `batChallengeCurrent` | float | Latest attempt or running value |
-| `batChallengeBest` | float | Best distance or count. Stays 0 for done/not-done challenges. Counters keep counting past their goal |
+| `batChallengeBest` | float | Best distance or count. Stays 0 for challenges that are booleans and dont require a specific value. Counters keep counting past their goal(sometimes) |
 | `batChallengeBeaten` | **uint32**, not float | 1 once the challenge is beaten, else 0 |
 
-* Slot 0 is never used (0 in every array, every save).
+* Slot 0 is always 0 in every array for all saves tested.
 * Slots 1-40 are the 40 base game challenges. Slots 41-45 are the 5 Catwoman DLC challenges.
 * The third array looks like all zeros if it is read as floats, because a float with the bit pattern of integer 1 is about 1.4e-45. Read it as `uint32`.
-* Slot 3 is probably the 50 meter dive: best 22.84 is not beaten, while 52.59, 56.52 and 57.97 are.
-* Which slot is which challenge is **not yet mapped**. The in-memory arrays are in the same order, so the names can be read off the game's list.
+* Which slot is which challenge has been confirmed by doing live testing check [physical challenge slot names](notes_challenges.md).
 
 ## Per-area collection counters (high confidence unless noted)
 
@@ -55,9 +54,9 @@ Nine entries each. Area order is OWA, OWB, OWC, OWD, OWE, Steel, Museum, Underwo
 |---|---|
 | `pickupsCollectedPerArea` | Sums to `pickupCount` for base game, per-area totals match the `Pickup_` collectibles (36, 37, 37, 26, 39, 24, 23, 25) |
 | `catwomanPickupsCollectedPerArea` | 5 in each of 7 areas = 35 in a save with the Catwoman pickups (medium: area order is assumed) |
-| `teethCollectedPerArea` | Only the OWD slot is used, 12 |
-| `balloonsCollectedPerArea` | OWB and OWC, 12 each |
-| `penguinsCollectedPerArea` | Only the Museum slot is used, 12 |
+| `teethCollectedPerArea` | Only 1 slot is used not sure which area it associates with|
+| `balloonsCollectedPerArea` | assumed to be the subway and underground slots, 12 each |
+| `penguinsCollectedPerArea` | Only the Museum slot is used, 12 | assumed to be associated with the Museum area |
 | `camerasBrokenPerArea` | Sums to `numCamerasBroken`, OWD has none |
 | `riddlesSolvedPerArea` | 14, 9, 9, 5, 11, 7, 8, 6 = 69 riddle collectibles |
 
