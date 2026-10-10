@@ -87,4 +87,31 @@ These were read as one uint32 "padding" value, but they are the length or count 
 
 * `new ArkhamCitySave(save, true)` is a tolerant mode. A parsing error is stored in `parseError` / `parseErrorPosition` instead of being thrown, and every field read before the error keeps its value.
 * Checked against 60 saves from the 2025 100% route (intro to Done) plus the test saves and the other uploaded saves. All of them parse cleanly up to `unknownInts140`.
-* Of those, the block after `unknownInts140` (from `unknownBytes143`) matches the parser's layout in about 60 percent. The rest either have `unknown151` different from -1 (`tailWarning`, early game and some missions) or hit a string that is not where the parser expects (`tailError`, mostly late game and a few missions). That block holds optional strings and sometimes whole extra lists, so it needs its own decoding pass.
+* The block after `unknownInts140` is now decoded for all 135 saves tried (2024/2025 routes, Any%, Glitchless, New Game Minus, NG+, NG+ with Catwoman, personal saves, the test saves). Layout:
+  * `unknownBytes143` / `unknownStrings143`: a variable sized region (85 to 135 bytes). It holds small counters and optional strings (`SS_*` side story flags, `OW_*` main mission names, `Riddler_*`). Its end is found by looking for the two 15 entry flag arrays (`unknown155`, `unknown157`) that always sit 26 bytes after the end of the region.
+  * `unknown150` (float) to `unknownBitFlags158`: fixed layout. `unknown151` is -1 in most saves but 14, 15 or 0 in early ones.
+  * `unknownStrings159A/B`, `unknownInts159C/D`: four lists of equal length (0, 1 or 2 entries so far). The strings are always `assassinBlood` and `Museum`.
+  * `unknownBytes159` (17 bytes, always 0), `unknownUints160` (9 words), the two 3 float arrays, two ints, a byte, and two arrays whose count varies (1, 5, 7 or 8 entries).
+* The end of segment 3 is a fixed 830 byte block (`footerHeader` 89 bytes, six counted lists of 16 ints in `footerIntLists`, `footerTail` 333 bytes). `unknownBytes170` was wrong: floats 168/169 are followed by this block no matter how long they are.
+  * `footerIntLists[0..3]` hold small indices and -1 (a slot table of 16 entries, filled from the front as the game goes on), `[4]` and `[5]` were all zero in every save so far.
+  * `footerTail` repeats a 77 byte pattern (the bytes at offsets 549/626, 560/637, 571/648, 725/802, ... vary together), so it is probably an array of four 77 byte records. The Footer bytes tab in the viewer and `dump/footer_summary.txt` list every non-zero offset and its values across saves.
+* Segment 3 can appear more than once. After the 830 byte block there is either nothing (normal saves) or another complete copy of segment 3 (starts with the 0x81 header again, ends with its own 830 byte block). New Game Plus / New Game Minus saves have two copies, New Game Plus with Catwoman has three; the last one is always `PDLCIN` / `PDLCIN_B3`. The parser reads them into `additionalSegment3s` (the second copy holds the third). All 135 saves tried end exactly at the end of their last 830 byte block.
+* Left undecoded: what the individual bytes inside `unknownBytes143` (apart from the strings), `footerHeader` and `footerTail` mean, and the 17 bytes in `unknownBytes159`.
+
+## Property names from the Cheat Engine ObjectsDump (work in progress)
+
+The save is a custom serialization of three UE3 objects in this order:
+RPersistentOptions, RPersistentShared, RPersistentData (not in offset order).
+Segment 3 (starts 0x81) is RPersistentData.
+
+Verified by matching bytes across many saves (segment 3, after FlagNames):
+- StoryDLCImageId, SaveGameChapter, two bytes (IsSaveGameStartPoint, StorySynopsisState)
+- Description (localized area name, e.g. "Centro Médico")
+- two bytes, then PrimaryObjective ("Frontend.Objectives.CH3b_Main_1_Rescue_Freeze")
+- ObjectivesIncomplete, ObjectivesMapObj, ObjectivesNewMapObj (string arrays)
+- CurrentGadgetName, LastScannedLocMap, LastScannedLoc
+- Radio block follows offset order, then ProgressCharacter*
+
+Candidate only (not yet named in C#): the 85/21/12/20/56-byte chunks that follow,
+Options-stream Day/Month/Year/LocationID/IvyStage2Reached/CombatDDA, and the
+Shared-stream counters. These need in-game Cheat Engine correlation to be certain.

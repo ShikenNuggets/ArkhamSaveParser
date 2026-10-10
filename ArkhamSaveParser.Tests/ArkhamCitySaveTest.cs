@@ -147,6 +147,88 @@ namespace ArkhamSaveParser.Tests {
 			Assert.AreEqual("Frontend.Objectives.CH2_Sub_5_Steel", citySave.unknownStrings92[0]);
 		}
 
+		[TestMethod]
+		public void ParseTailOfEarlySavesWithoutErrors() {
+			// The block after unknownInts140 has a different size in different saves. None of these may fail
+			// in strict mode or report a tail error in tolerant mode.
+			foreach (var name in new[] { "CourthouseSave", "EnterChurchSave", "SteelMillSave", "TestSave0", "TestSave1" }) {
+				var path = "TestData/City/" + name + ".sgd";
+				var strict = new ArkhamCitySave(new CompressedSave(path));
+				var tolerant = new ArkhamCitySave(new CompressedSave(path), true);
+
+				Assert.IsNull(tolerant.parseError, name);
+				Assert.IsNull(tolerant.tailError, name);
+				Assert.AreEqual(15u, strict.unknown155, name);
+				Assert.AreEqual(15u, strict.unknown157, name);
+				Assert.AreEqual(9, strict.unknownUints160.Length, name);
+			}
+		}
+
+		[TestMethod]
+		public void ParseTailStringsAndCounters() {
+			var church = new ArkhamCitySave(new CompressedSave("TestData/City/EnterChurchSave.sgd"));
+			Assert.AreEqual(99, church.unknownBytes143.Length);
+			Assert.AreEqual(1, church.unknownStrings143.Count);
+			Assert.AreEqual("OW_CH2_Bullet", church.unknownStrings143[0]);
+			Assert.AreEqual(14, church.unknown151); // Not always -1
+			Assert.AreEqual(0u, church.unknown152);
+			Assert.AreEqual(8u, church.unknown153);
+
+			var steelMill = new ArkhamCitySave(new CompressedSave("TestData/City/SteelMillSave.sgd"));
+			Assert.AreEqual(85, steelMill.unknownBytes143.Length);
+			Assert.AreEqual(0, steelMill.unknownStrings143.Count);
+			Assert.AreEqual(-1, steelMill.unknown151);
+			Assert.AreEqual(2u, steelMill.unknown152);
+
+			var testSave1 = new ArkhamCitySave(new CompressedSave("TestData/City/TestSave1.sgd"));
+			Assert.AreEqual(2, testSave1.unknownStrings143.Count);
+			Assert.AreEqual("Riddler_OWC_CWPickup_4", testSave1.unknownStrings143[0]);
+			Assert.AreEqual("SS_Riddler_Hostage6_Saved", testSave1.unknownStrings143[1]);
+			Assert.AreEqual(0.5f, testSave1.unknown150, 0.0001f);
+			Assert.AreEqual(8u, testSave1.unknown152);
+		}
+
+		[TestMethod]
+		public void ParseFooterOfSingleSegmentSave() {
+			var citySave = new ArkhamCitySave(new CompressedSave("TestData/City/EnterChurchSave.sgd"));
+
+			Assert.AreEqual(0, citySave.additionalSegment3s.Count);
+			Assert.AreEqual(89, citySave.footerHeader.Length);
+			Assert.AreEqual(6, citySave.footerIntLists.Length);
+			foreach (var list in citySave.footerIntLists) {
+				Assert.AreEqual(16, list.Length);
+			}
+
+			Assert.AreEqual(333, citySave.footerTail.Length);
+			Assert.AreEqual(830, citySave.GetFooterBytes().Length);
+		}
+
+		[TestMethod]
+		public void ParseNewGamePlusHasTwoCopiesOfSegment3() {
+			var citySave = new ArkhamCitySave(new CompressedSave("TestData/City/NewGamePlusStartSave.sgd"));
+
+			Assert.AreEqual("OW_A5", citySave.GetRoomName());
+			Assert.AreEqual(1, citySave.additionalSegment3s.Count);
+			Assert.AreEqual("PDLCIN", citySave.additionalSegment3s[0].GetWorldName());
+			Assert.AreEqual("PDLCIN_B3", citySave.additionalSegment3s[0].GetRoomName());
+			Assert.AreEqual(0, citySave.additionalSegment3s[0].additionalSegment3s.Count);
+			Assert.AreEqual(830, citySave.additionalSegment3s[0].GetFooterBytes().Length);
+		}
+
+		[TestMethod]
+		public void ParseNewGamePlusWithCatwomanHasThreeCopiesOfSegment3() {
+			var citySave = new ArkhamCitySave(new CompressedSave("TestData/City/NewGamePlusCatwomanSave.sgd"), true);
+
+			Assert.IsNull(citySave.parseError);
+			Assert.IsNull(citySave.tailError);
+			Assert.AreEqual("OW_A5", citySave.GetRoomName());
+			Assert.AreEqual(1, citySave.additionalSegment3s.Count);
+			var second = citySave.additionalSegment3s[0];
+			Assert.AreEqual("OW_E4", second.GetRoomName());
+			Assert.AreEqual(1, second.additionalSegment3s.Count);
+			Assert.AreEqual("PDLCIN_B3", second.additionalSegment3s[0].GetRoomName());
+		}
+
 		private static uint Sum(uint[] values) {
 			uint total = 0;
 			for (var i = 0; i < values.Length; ++i) {
