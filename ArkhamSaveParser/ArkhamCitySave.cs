@@ -237,7 +237,7 @@ namespace ArkhamSaveParser {
 		public uint unknown84;
 		public List<string> unknownStrings85 = []; // Second list of level names, empty early in the game (OW_B1, Steel_B1, ...)
 
-		// ---- Segment 2: per-area collection data (area order: OWA, OWB, OWC, OWD, OWE, Steel, Museum, Underworld, +1 unused slot) ----
+		// ---- Segment 2: per-area collection data (area order: unknown) ----
 		public byte[] unknownBytes35 = []; // 9 bytes, 0-31, looks like a per-area bit mask
 		public uint[] unknownUints36 = []; // 9 entries
 		public uint[] unknownUints37 = []; // 9 entries
@@ -252,15 +252,15 @@ namespace ArkhamSaveParser {
 		public uint[] unknownUints46 = [];
 		public uint[] pickupsCollectedPerArea = [];         // sums to pickupCount (minus Catwoman pickups)
 		public uint[] catwomanPickupsCollectedPerArea = []; // sums to 35 in a fully collected Catwoman save
-		public uint[] teethCollectedPerArea = [];           // only the OWD slot is used
-		public uint[] unknownUints50 = [];                  // 11 entries, grows with progress, meaning unknown
+		public uint[] teethCollectedPerArea = [];           // only the steel mill slot is used,
+        public uint[] unknownUints50 = [];                  // 11 entries, grows with progress, meaning unknown
 		public uint[] unknownUints51 = [];                  // 9 entries, all 0 in every save seen so far
 		public uint[] balloonsCollectedPerArea = [];        // OWB and OWC
 		public uint[] penguinsCollectedPerArea = [];        // only the Museum slot is used
 		public uint[] camerasBrokenPerArea = [];            // sums to numCamerasBroken
 		public uint[] riddlesSolvedPerArea = [];
 
-		// ---- Segment 2: experience / statistics (matches the game's REperienceSystem struct order) ----
+		// ---- Segment 2: possibly experience / statistics follows sameish format as RPersistentData ----
 		public uint unknown59; // two members before BrokenGrundyHeadTally, 12 in later saves
 		public uint unknown60;
 		public uint brokenGrundyHeadTally;
@@ -271,7 +271,7 @@ namespace ArkhamSaveParser {
 		public uint interrogatesPerformed;
 		public uint interrogatesWithTutorialPerformed;
 
-		// Physical challenges. 46 slots: slot 0 is unused, 1-40 are the base game, 41-45 are the Catwoman DLC.
+		// Physical challenges. 46 slots: slot 0 is always 0 idk why, 1-40 are the base game, 41-45 are the Catwoman DLC.
 		public float[] batChallengeCurrent = []; // latest attempt / running value
 		public float[] batChallengeBest = [];    // best value (distance, count, ...); stays 0 for done/not-done challenges
 		public uint[] batChallengeBeaten = [];   // 1 once the challenge is beaten, 0 otherwise
