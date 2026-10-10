@@ -107,8 +107,8 @@ namespace ArkhamSaveParser {
 			return batChallengeBeaten;
 		}
 
-		/// <summary>Slot 0 is unused, 1-40 are the base game physical challenges, 41-45 are the Catwoman DLC ones.</summary>
-		public bool IsBatChallengeBeaten(int slot) {
+        /// <summary>slot 0 always holds the value 0, 1-40 are the base game challenges, 41-45 are the Catwoman DLC challenges.</summary>
+        public bool IsBatChallengeBeaten(int slot) {
 			if (slot < 0 || slot >= batChallengeBeaten.Length) {
 				return false;
 			}
@@ -271,15 +271,14 @@ namespace ArkhamSaveParser {
 		public uint[] unknownUints46 = [];
 		public uint[] pickupsCollectedPerArea = [];         // sums to pickupCount (minus Catwoman pickups)
 		public uint[] catwomanPickupsCollectedPerArea = []; // sums to 35 in a fully collected Catwoman save
-		public uint[] teethCollectedPerArea = [];           // only the steel mill slot is used,
-        public uint[] unknownUints50 = [];                  // 11 entries, grows with progress, meaning unknown
+		public uint[] teethCollectedPerArea = [];           // unsure which slots they are but presumed to be the ones associated with the subway and sewers
+		public uint[] unknownUints50 = [];                  // 11 entries, grows with progress, meaning unknown
 		public uint[] unknownUints51 = [];                  // 9 entries, all 0 in every save seen so far
-		public uint[] balloonsCollectedPerArea = [];        // OWB and OWC
+		public uint[] balloonsCollectedPerArea = [];        // only industrial and bowery
 		public uint[] penguinsCollectedPerArea = [];        // only the Museum slot is used
 		public uint[] camerasBrokenPerArea = [];            // sums to numCamerasBroken
 		public uint[] riddlesSolvedPerArea = [];
-
-		// ---- Segment 2: possibly experience / statistics follows sameish format as RPersistentData ----
+		// ---- Segment 2: possibly experience / statistics (matches some of the format of the Rshared/persistentdata class in game)----
 		public uint unknown59; // two members before BrokenGrundyHeadTally, 12 in later saves
 		public uint unknown60;
 		public uint brokenGrundyHeadTally;
@@ -289,10 +288,9 @@ namespace ArkhamSaveParser {
 		public uint numCamerasBroken;
 		public uint interrogatesPerformed;
 		public uint interrogatesWithTutorialPerformed;
-
-		// Physical challenges. 46 slots: slot 0 is always 0 idk why, 1-40 are the base game, 41-45 are the Catwoman DLC.
+		// Physical challenges. 46 slots: slot 0 always holds the value 0, 1-40 are the base game challenges, 41-45 are the Catwoman DLC challenges.
 		public float[] batChallengeCurrent = []; // latest attempt / running value
-		public float[] batChallengeBest = [];    // best value (distance, count, ...); stays 0 for done/not-done challenges
+		public float[] batChallengeBest = [];    // best value (distance, count, ...); stays 0 for challenges that are simply booleans.
 		public uint[] batChallengeBeaten = [];   // 1 once the challenge is beaten, 0 otherwise
 
 		public float xp;
@@ -765,7 +763,7 @@ namespace ArkhamSaveParser {
 		}
 
 		// Everything after the six 12 entry int arrays. The part between unknownInts140 and unknown150 has no
-		// fixed size: it holds optional strings (side story flags, main mission names) and a few small
+		// fixed size: it holds optional strings (side story flags, objectives and area names) and a few small
 		// counters. Its end is found by looking ahead for the two 15 entry flag arrays (unknown155 and
 		// unknown157), which every save so far has at a fixed distance after unknown150.
 		private void ParseTail(BinaryReader reader) {
