@@ -13,6 +13,7 @@ namespace ArkhamSaveViewer {
 
 		public LabelStore() {
 			try {
+				// TODO: Proper error handling
 				if (File.Exists(path)) {
 					labels = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(path)) ?? new();
 				}

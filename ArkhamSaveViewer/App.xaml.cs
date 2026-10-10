@@ -5,6 +5,7 @@ using Microsoft.Win32;
 
 namespace ArkhamSaveViewer {
 	public partial class App : Application {
+		// TODO: Proper settings file instead of random text files
 		private static string ThemePath => Path.Combine(AppContext.BaseDirectory, "viewer_theme.txt");
 
 		protected override void OnStartup(StartupEventArgs e) {
@@ -12,9 +13,9 @@ namespace ArkhamSaveViewer {
 			base.OnStartup(e);
 		}
 
-		/// <summary>"Dark", "Light" or "System". Dark unless you picked something else.</summary>
 		internal static string LoadThemeName() {
 			try {
+				// TODO: Proper error handling
 				if (File.Exists(ThemePath)) {
 					var name = File.ReadAllText(ThemePath).Trim();
 					if (name == "Light" || name == "System" || name == "Dark") {
@@ -23,20 +24,16 @@ namespace ArkhamSaveViewer {
 				}
 			} catch { }
 
-			return "Dark";
+			return "System";
 		}
 
 		internal static void SaveThemeName(string name) {
 			try { File.WriteAllText(ThemePath, name); } catch { }
 		}
 
-		/// <summary>
-		/// Switches the built in Fluent theme (this restyles every control, grid and the title bar) and
-		/// swaps the few colours the viewer uses itself for highlights.
-		/// </summary>
 		internal static void ApplyTheme(string name) {
 			var app = Current;
-			var dark = name == "Dark" || (name == "System" && SystemUsesDarkMode());
+			bool dark = name == "Dark" || (name == "System" && SystemUsesDarkMode());
 
 			app.ThemeMode = name switch {
 				"Light" => ThemeMode.Light,
@@ -44,6 +41,7 @@ namespace ArkhamSaveViewer {
 				_ => ThemeMode.Dark,
 			};
 
+			// TODO: Use proper resource dictionaries instead of hardcoding colors here
 			app.Resources["ChangedBrush"] = Brush(dark ? "#5A4B12" : "#FFF1B8");
 			app.Resources["BeatenBrush"] = Brush(dark ? "#1F4D2B" : "#E2F4E2");
 			app.Resources["UnknownBrush"] = Brush(dark ? "#FF8A80" : "#B22222");
@@ -57,7 +55,7 @@ namespace ArkhamSaveViewer {
 				using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
 				return key?.GetValue("AppsUseLightTheme") is int light && light == 0;
 			} catch {
-				return false;
+				return true; // Fallback to dark mode if we can't read the registry for some reason
 			}
 		}
 

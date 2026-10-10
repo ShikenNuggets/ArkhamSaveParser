@@ -44,6 +44,7 @@ namespace ArkhamSaveViewer {
 
 			Loaded += (_, _) => {
 				try {
+					// TODO: Proper error handling
 					if (File.Exists(settingsPath)) {
 						var last = File.ReadAllText(settingsPath).Trim();
 						if (File.Exists(last)) {
@@ -59,10 +60,10 @@ namespace ArkhamSaveViewer {
 			StatusText.Text = text;
 			switch (kind) {
 				case StatusKind.Error:
-					StatusText.SetResourceReference(TextBlock.ForegroundProperty, "ErrorBrush");
+					StatusText.SetResourceReference(TextBlock.ForegroundProperty, "ErrorBrush"); // TODO: Use a brush from the theme instead of hardcoding the name here
 					break;
 				case StatusKind.Warning:
-					StatusText.SetResourceReference(TextBlock.ForegroundProperty, "WarnBrush");
+					StatusText.SetResourceReference(TextBlock.ForegroundProperty, "WarnBrush"); // TODO: Use a brush from the theme instead of hardcoding the name here
 					break;
 				default:
 					StatusText.ClearValue(TextBlock.ForegroundProperty);
@@ -270,13 +271,12 @@ namespace ArkhamSaveViewer {
 			}
 		}
 
-		/// <summary>Colours the row: yellow/brown if changed since the last load, green if a challenge is beaten.</summary>
 		private void Grid_LoadingRow(object? sender, DataGridRowEventArgs e) {
 			if (e.Row.Item is LabelRow row) {
 				if (row.IsChanged) {
-					e.Row.SetResourceReference(Control.BackgroundProperty, "ChangedBrush");
+					e.Row.SetResourceReference(Control.BackgroundProperty, "ChangedBrush"); // TODO: Use a brush from the theme instead of hardcoding the name here
 				} else if (row.IsBeaten) {
-					e.Row.SetResourceReference(Control.BackgroundProperty, "BeatenBrush");
+					e.Row.SetResourceReference(Control.BackgroundProperty, "BeatenBrush"); // TODO: Use a brush from the theme instead of hardcoding the name here
 				} else {
 					e.Row.ClearValue(Control.BackgroundProperty); // rows are recycled, so reset
 				}
