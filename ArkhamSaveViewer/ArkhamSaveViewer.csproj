@@ -9,6 +9,7 @@
     <RootNamespace>ArkhamSaveViewer</RootNamespace>
     <!-- ThemeMode (the built in Fluent light/dark theme) is still marked experimental in WPF -->
     <NoWarn>$(NoWarn);WPF0001</NoWarn>
+	<EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
   <ItemGroup>
