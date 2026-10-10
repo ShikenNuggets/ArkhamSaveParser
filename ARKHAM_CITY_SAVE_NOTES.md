@@ -1,0 +1,90 @@
+# Arkham City save notes
+
+What is known about the decompressed Arkham City save layout, and how sure we are.
+All numbers are big endian. "Slot" means an index into an array.
+
+Evidence used: the four saves in `TestData/City`, two more full saves (late game, one
+with all physical challenges done), and a Cheat Engine structure dump of the game's
+`RExperienceSystem` object (UE3 class and member names).
+
+## Container
+
+* A 40 byte wrapper header, then LZO segments that each start with `9E 2A 83 C1`.
+* After the last segment the file is zeros until the end (294912 bytes total). No compressed data is left over.
+
+## Experience / statistics block (high confidence)
+
+These fields sit in the same order as the members of `RExperienceSystem`, and their values
+match the in-memory struct for a loaded save.
+
+| Field | Meaning | Evidence |
+|---|---|---|
+| `brokenGrundyHeadTally` | `BrokenGrundyHeadTally` | Matches the struct member order and value |
+| `pickupCount` | `PickupCount` | 247 in the base game, 282 = 247 + 35 Catwoman pickups |
+| `pickupRevealsLeft` | `PickupRevealsLeft` | Value matches memory |
+| `interrogatesLeft` | `InterrogatesLeft` | Value matches memory |
+| `numCamerasBroken` | `NumCamerasBroken` | Equals the sum of `camerasBrokenPerArea` |
+| `interrogatesPerformed` | `InterrogatesPerformed` | Value matches memory |
+| `interrogatesWithTutorialPerformed` | `InterrogatesWithTutorialPerformed` | Value matches memory |
+| `xp`, `xpForPrevUpgrade`, `xpForNextUpgrade`, `xpLevel` | `Xp`, `XpForPrevUpgrade`, `XpForNextUpgrade`, `XpLevel` | Stored as floats. The save order is Xp first, which differs from the in-memory order |
+| `xpOverUpgradeThreshold`, `upgradesBought`, `cwUpgradesBought`, `playerLevel` | Same names as the struct | Values match memory |
+
+## Physical challenges (high confidence)
+
+Three arrays of 46 entries, each stored as a 4 byte count followed by the values. They are
+`BatChallengeCurrent`, `BatChallengeBest` and `BatChallengeBeaten` in memory.
+`BatChallengeNeeded` (the goals) is not saved.
+
+| Array | Type | Meaning |
+|---|---|---|
+| `batChallengeCurrent` | float | Latest attempt or running value |
+| `batChallengeBest` | float | Best distance or count. Stays 0 for done/not-done challenges. Counters keep counting past their goal |
+| `batChallengeBeaten` | **uint32**, not float | 1 once the challenge is beaten, else 0 |
+
+* Slot 0 is never used (0 in every array, every save).
+* Slots 1-40 are the 40 base game challenges. Slots 41-45 are the 5 Catwoman DLC challenges.
+* The third array looks like all zeros if it is read as floats, because a float with the bit pattern of integer 1 is about 1.4e-45. Read it as `uint32`.
+* Slot 3 is probably the 50 meter dive: best 22.84 is not beaten, while 52.59, 56.52 and 57.97 are.
+* Which slot is which challenge is **not yet mapped**. The in-memory arrays are in the same order, so the names can be read off the game's list.
+
+## Per-area collection counters (high confidence unless noted)
+
+Nine entries each. Area order is OWA, OWB, OWC, OWD, OWE, Steel, Museum, Underworld, then one unused slot.
+
+| Field | Evidence |
+|---|---|
+| `pickupsCollectedPerArea` | Sums to `pickupCount` for base game, per-area totals match the `Pickup_` collectibles (36, 37, 37, 26, 39, 24, 23, 25) |
+| `catwomanPickupsCollectedPerArea` | 5 in each of 7 areas = 35 in a save with the Catwoman pickups (medium: area order is assumed) |
+| `teethCollectedPerArea` | Only the OWD slot is used, 12 |
+| `balloonsCollectedPerArea` | OWB and OWC, 12 each |
+| `penguinsCollectedPerArea` | Only the Museum slot is used, 12 |
+| `camerasBrokenPerArea` | Sums to `numCamerasBroken`, OWD has none |
+| `riddlesSolvedPerArea` | 14, 9, 9, 5, 11, 7, 8, 6 = 69 riddle collectibles |
+
+## Fields that turned out not to be padding
+
+These were read as one uint32 "padding" value, but they are the length or count of a string or string array that is empty early in the game. Reading them as a uint32 only worked on saves where they were 0.
+
+| Old name | New name | Seen holding |
+|---|---|---|
+| `unknown85` | `unknownStrings85` | `Steel_B1`, `Steel_B1_Fascade`, ... (a second list of level names, next to `worldStrings`) |
+| `unknown87` | `unknownString87` | `Steel_B1` |
+| `unknown92` | `unknownStrings92` | `Frontend.Objectives.CH2_Sub_2_Trail1` (active objectives) |
+
+## Still unknown
+
+* `unknown59`, `unknown60`: the two members before `BrokenGrundyHeadTally` (12 and 12 in later saves). Scroll up in the struct dump to name them.
+* `unknownBytes35`, `unknownUints36`, `unknownUints37`: 9 entries each, 0-31 bit mask in places.
+* `unknownUints38` to `unknownUints46`: 60 entries each (5 blocks of 12), values 0, 1 or 2. Possibly Riddler's Revenge challenge map states.
+* `unknownUints50` (11 entries, grows with progress) and `unknownUints51` (always 0).
+* `unknown76`, `unknown77`: 1 in every save seen.
+* The nine 4 byte values just before the `-1, -1` marker in segment 3 (`unknownUints160`). They were read as a 3 float array plus a 4 int array, which only works for later saves. Early game values differ (`1, F, 11, 9, 0, 0, 0, 0, -1` right after the Courthouse versus `3, F, 11, 11, 4, 3, 0, 0, 8` in TestSave0), so they are a fixed block of nine and the first value is not a count.
+* `progressStrings[0]` (`580/852`) and `[3]` (`x/94`), and what `unknownFloats1[0..14]` are. `unknownFloats1[15..17]` equal the numbers in `progressStrings[1..3]`, but without the Catwoman additions (400, 27, 94 instead of 440, 33, 94).
+* The challenge map structs (`unknownStructs`). Their ids look like challenge map ids 11-22, 31-42 and 64-77, the same numbers as the `ChalAvail_N` flag strings.
+* Almost the whole tail of segment 3 (about 39 KB in a late save).
+
+## Parser robustness
+
+* `new ArkhamCitySave(save, true)` is a tolerant mode. A parsing error is stored in `parseError` / `parseErrorPosition` instead of being thrown, and every field read before the error keeps its value.
+* Checked against 60 saves from the 2025 100% route (intro to Done) plus the test saves and the other uploaded saves. All of them parse cleanly up to `unknownInts140`.
+* Of those, the block after `unknownInts140` (from `unknownBytes143`) matches the parser's layout in about 60 percent. The rest either have `unknown151` different from -1 (`tailWarning`, early game and some missions) or hit a string that is not where the parser expects (`tailError`, mostly late game and a few missions). That block holds optional strings and sometimes whole extra lists, so it needs its own decoding pass.

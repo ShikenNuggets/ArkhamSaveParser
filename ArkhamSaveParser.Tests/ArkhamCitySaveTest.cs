@@ -70,5 +70,176 @@ namespace ArkhamSaveParser.Tests {
 
 			//Assert.AreEqual("Playable_Batman", citySave.GetLastUsedCharacter());
 		}
+
+		[TestMethod]
+		public void ParseEarlyGameCourthouseSave() {
+			// Saved right after the Courthouse, very early in the game. The nine values before the
+			// "-1, -1" marker in segment 3 are laid out differently than in the later test saves.
+			var compressedSave = new CompressedSave("TestData/City/CourthouseSave.sgd");
+			var citySave = new ArkhamCitySave(compressedSave);
+
+			Assert.AreEqual("2025-12-07", citySave.GetDateString());
+			Assert.AreEqual("0/852", citySave.GetProgressionString());
+			Assert.AreEqual("5/400", citySave.GetRiddlesString());
+			Assert.AreEqual("Court", citySave.GetWorldName());
+			Assert.AreEqual("Court_B1", citySave.GetRoomName());
+			Assert.AreEqual("Playable_Batman", citySave.GetLastUsedCharacter());
+
+			Assert.AreEqual(9, citySave.unknownUints160.Length);
+			Assert.AreEqual(1u, citySave.unknownUints160[0]);
+			Assert.AreEqual(11u, citySave.unknownUints160[2]);
+			Assert.AreEqual(9u, citySave.unknownUints160[3]);
+
+			Assert.AreEqual(1u, citySave.pickupCount);
+			Assert.AreEqual(1840.0f, citySave.xp);
+			Assert.AreEqual(2000.0f, citySave.xpForNextUpgrade);
+
+			// Four physical challenges are beaten so far
+			Assert.AreEqual(4, citySave.GetBeatenBatChallengeCount());
+			Assert.IsTrue(citySave.IsBatChallengeBeaten(7));
+			Assert.IsTrue(citySave.IsBatChallengeBeaten(8));
+			Assert.IsTrue(citySave.IsBatChallengeBeaten(9));
+			Assert.IsTrue(citySave.IsBatChallengeBeaten(18));
+			Assert.IsFalse(citySave.IsBatChallengeBeaten(3));
+			Assert.AreEqual(2.97f, citySave.GetBatChallengeBest()[3], 0.01f);
+		}
+
+		[TestMethod]
+		public void TolerantParseKeepsFieldsBeforeAnError() {
+			// A save that parses fine reports no error in tolerant mode
+			var compressedSave = new CompressedSave("TestData/City/CourthouseSave.sgd");
+			var citySave = new ArkhamCitySave(compressedSave, true);
+
+			Assert.IsNull(citySave.parseError);
+			Assert.AreEqual(-1, citySave.parseErrorPosition);
+			Assert.AreEqual("Court", citySave.GetWorldName());
+		}
+
+		[TestMethod]
+		public void ParseEnterChurchSaveObjectiveList() {
+			// Field 92 used to be read as a padding uint32. It is the count of a string array, and it is not empty here.
+			var compressedSave = new CompressedSave("TestData/City/EnterChurchSave.sgd");
+			var citySave = new ArkhamCitySave(compressedSave, true);
+
+			Assert.IsNull(citySave.parseError);
+			Assert.AreEqual("OW", citySave.GetWorldName());
+			Assert.AreEqual("OW_A2", citySave.GetRoomName());
+			Assert.AreEqual("6/400", citySave.GetRiddlesString());
+			Assert.AreEqual(1, citySave.unknownStrings92.Count);
+			Assert.AreEqual("Frontend.Objectives.CH2_Sub_2_Trail1", citySave.unknownStrings92[0]);
+			Assert.AreEqual(46, citySave.GetBatChallengeBeaten().Length); // The challenge arrays come before these fields
+		}
+
+		[TestMethod]
+		public void ParseSteelMillSaveLevelLists() {
+			// Fields 85 and 87 used to be read as padding. They are a string array and a string, both empty early on.
+			var compressedSave = new CompressedSave("TestData/City/SteelMillSave.sgd");
+			var citySave = new ArkhamCitySave(compressedSave, true);
+
+			Assert.IsNull(citySave.parseError);
+			Assert.AreEqual("Steel", citySave.GetWorldName());
+			Assert.AreEqual("Steel_C1", citySave.GetRoomName());
+			Assert.AreEqual("24/400", citySave.GetRiddlesString());
+			Assert.AreEqual(4, citySave.unknownStrings85.Count);
+			Assert.AreEqual("Steel_B1", citySave.unknownStrings85[0]);
+			Assert.AreEqual("Steel_B1", citySave.unknownString87);
+			Assert.AreEqual(1, citySave.unknownStrings92.Count);
+			Assert.AreEqual("Frontend.Objectives.CH2_Sub_5_Steel", citySave.unknownStrings92[0]);
+		}
+
+		private static uint Sum(uint[] values) {
+			uint total = 0;
+			for (var i = 0; i < values.Length; ++i) {
+				total += values[i];
+			}
+
+			return total;
+		}
+
+		[TestMethod]
+		public void ParseDefaultSaveHasNoChallengeData() {
+			var compressedSave = new CompressedSave("TestData/City/DefaultSave.sgd");
+			var citySave = new ArkhamCitySave(compressedSave);
+
+			Assert.AreEqual(0, citySave.GetBatChallengeBeaten().Length);
+			Assert.AreEqual(0, citySave.GetBeatenBatChallengeCount());
+			Assert.IsFalse(citySave.IsBatChallengeBeaten(1));
+		}
+
+		[TestMethod]
+		public void ParseExperienceCounters0() {
+			var compressedSave = new CompressedSave("TestData/City/TestSave0.sgd");
+			var citySave = new ArkhamCitySave(compressedSave);
+
+			Assert.AreEqual(25u, citySave.pickupCount);
+			Assert.AreEqual(16u, citySave.numCamerasBroken);
+			Assert.AreEqual(2u, citySave.interrogatesPerformed);
+
+			Assert.AreEqual(17205.0f, citySave.xp);
+			Assert.AreEqual(17000.0f, citySave.xpForPrevUpgrade);
+			Assert.AreEqual(22000.0f, citySave.xpForNextUpgrade);
+			Assert.AreEqual(6.0f, citySave.xpLevel);
+			Assert.AreEqual(4u, citySave.upgradesBought);
+			Assert.AreEqual(6u, citySave.playerLevel);
+
+			// The per-area counters add up to the global ones
+			Assert.AreEqual(citySave.pickupCount, Sum(citySave.pickupsCollectedPerArea));
+			Assert.AreEqual(citySave.numCamerasBroken, Sum(citySave.camerasBrokenPerArea));
+		}
+
+		[TestMethod]
+		public void ParseExperienceCounters1() {
+			var compressedSave = new CompressedSave("TestData/City/TestSave1.sgd");
+			var citySave = new ArkhamCitySave(compressedSave);
+
+			Assert.AreEqual(282u, citySave.pickupCount);
+			Assert.AreEqual(48u, citySave.numCamerasBroken);
+			Assert.AreEqual(77u, citySave.interrogatesPerformed);
+
+			Assert.AreEqual(370555.0f, citySave.xp);
+			Assert.AreEqual(369500.0f, citySave.xpForPrevUpgrade);
+			Assert.AreEqual(377000.0f, citySave.xpForNextUpgrade);
+
+			// 247 base game pickups plus 35 Catwoman pickups
+			Assert.AreEqual(247u, Sum(citySave.pickupsCollectedPerArea));
+			Assert.AreEqual(35u, Sum(citySave.catwomanPickupsCollectedPerArea));
+			Assert.AreEqual(citySave.pickupCount, Sum(citySave.pickupsCollectedPerArea) + Sum(citySave.catwomanPickupsCollectedPerArea));
+			Assert.AreEqual(48u, Sum(citySave.camerasBrokenPerArea));
+			Assert.AreEqual(24u, Sum(citySave.balloonsCollectedPerArea));
+		}
+
+		[TestMethod]
+		public void ParseBatChallenges0() {
+			var compressedSave = new CompressedSave("TestData/City/TestSave0.sgd");
+			var citySave = new ArkhamCitySave(compressedSave);
+
+			Assert.AreEqual(46, citySave.GetBatChallengeCurrent().Length);
+			Assert.AreEqual(46, citySave.GetBatChallengeBest().Length);
+			Assert.AreEqual(46, citySave.GetBatChallengeBeaten().Length);
+
+			Assert.IsFalse(citySave.IsBatChallengeBeaten(0)); // Slot 0 is never used
+			Assert.AreEqual(16, citySave.GetBeatenBatChallengeCount());
+
+			// The 50 meter dive challenge has not been beaten yet (best is only about 22.8 meters)
+			Assert.IsFalse(citySave.IsBatChallengeBeaten(3));
+			Assert.AreEqual(22.84f, citySave.GetBatChallengeBest()[3], 0.01f);
+		}
+
+		[TestMethod]
+		public void ParseBatChallenges1() {
+			var compressedSave = new CompressedSave("TestData/City/TestSave1.sgd");
+			var citySave = new ArkhamCitySave(compressedSave);
+
+			Assert.AreEqual(46, citySave.GetBatChallengeBeaten().Length);
+			Assert.IsFalse(citySave.IsBatChallengeBeaten(0)); // Slot 0 is never used
+
+			// All 40 base game challenges and all 5 Catwoman challenges
+			Assert.AreEqual(45, citySave.GetBeatenBatChallengeCount());
+			for (var slot = 1; slot <= 45; ++slot) {
+				Assert.IsTrue(citySave.IsBatChallengeBeaten(slot));
+			}
+
+			Assert.AreEqual(52.59f, citySave.GetBatChallengeBest()[3], 0.01f);
+		}
 	}
 }

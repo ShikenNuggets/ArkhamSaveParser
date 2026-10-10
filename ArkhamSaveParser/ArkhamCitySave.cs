@@ -9,6 +9,33 @@ namespace ArkhamSaveParser {
 			ParseSave();
 		}
 
+		/// <summary>
+		/// When tolerant is true a parsing error is not thrown. Instead it is stored in parseError (with the
+		/// byte offset in parseErrorPosition) and every field that was read before the error keeps its value.
+		/// </summary>
+		public ArkhamCitySave(CompressedSave save, bool tolerant) : base(save) {
+			tolerantTail = tolerant;
+			if (!tolerant) {
+				ParseSave();
+				return;
+			}
+
+			try {
+				ParseSave();
+			} catch (Exception ex) {
+				parseError = ex.Message;
+				parseErrorPosition = parseReader != null ? parseReader.BaseStream.Position : -1;
+			}
+		}
+
+		public string? parseError; // Only set by the tolerant constructor
+		public string? tailError; // Only set by the tolerant constructor: the last block of segment 3 was not understood
+		public long tailErrorPosition = -1;
+		public string? tailWarning; // Set by either constructor when the last block does not look like the layout this parser expects
+		private bool tolerantTail = false;
+		public long parseErrorPosition = -1; // Offset in the decompressed data where the error happened
+		private BinaryReader? parseReader;
+
 		public string GetDateString() {
 			return year.ToString("D4") + "-" + month.ToString("D2") + "-" + day.ToString("D2");
 		}
@@ -47,6 +74,38 @@ namespace ArkhamSaveParser {
 
 		public string GetLastUsedCharacter() {
 			return lastUsedCharacter;
+		}
+
+		public float[] GetBatChallengeCurrent() {
+			return batChallengeCurrent;
+		}
+
+		public float[] GetBatChallengeBest() {
+			return batChallengeBest;
+		}
+
+		public uint[] GetBatChallengeBeaten() {
+			return batChallengeBeaten;
+		}
+
+		/// <summary>Slot 0 is unused, 1-40 are the base game physical challenges, 41-45 are the Catwoman DLC ones.</summary>
+		public bool IsBatChallengeBeaten(int slot) {
+			if (slot < 0 || slot >= batChallengeBeaten.Length) {
+				return false;
+			}
+
+			return batChallengeBeaten[slot] != 0;
+		}
+
+		public int GetBeatenBatChallengeCount() {
+			var count = 0;
+			for (var i = 0; i < batChallengeBeaten.Length; ++i) {
+				if (batChallengeBeaten[i] != 0) {
+					count++;
+				}
+			}
+
+			return count;
 		}
 
 		private uint day = 0;
@@ -166,49 +225,9 @@ namespace ArkhamSaveParser {
 
 		public uint unknown33;
 		public uint unknown34;
-		public uint unknown35;
-		public uint unknown36;
-		public uint unknown37;
-		public uint unknown38;
-		public uint unknown39;
-		public uint unknown40;
-		public uint unknown41;
-		public uint unknown42;
-		public uint unknown43;
-		public uint unknown44;
-		public uint unknown45;
-		public uint unknown46;
-		public uint unknown47;
-		public uint unknown48;
-		public uint unknown49;
-		public uint unknown50;
-		public uint unknown51;
-		public uint unknown52;
-		public uint unknown53;
-		public uint unknown54;
-		public uint unknown55;
 		public uint unknown56;
 		public uint unknown57;
 		public uint unknown58;
-		public uint unknown59;
-		public uint unknown60;
-		public uint unknown61;
-		public uint unknown62;
-		public uint unknown63;
-		public uint unknown64;
-		public uint unknown65;
-		public uint unknown66;
-		public uint unknown67;
-		public float unknown68;
-		public float unknown69;
-		public float unknown70;
-		public float unknown71;
-		public uint unknown72;
-		public uint unknown73;
-		public uint unknown74;
-		public uint unknown75;
-		public uint unknown76;
-		public uint unknown77;
 		public uint unknown78;
 		public uint unknown79;
 		public uint unknown80;
@@ -216,16 +235,66 @@ namespace ArkhamSaveParser {
 		public uint unknown82;
 		public uint unknown83;
 		public uint unknown84;
-		public uint unknown85;
+		public List<string> unknownStrings85 = []; // Second list of level names, empty early in the game (OW_B1, Steel_B1, ...)
+
+		// ---- Segment 2: per-area collection data (area order: unknown) ----
+		public byte[] unknownBytes35 = []; // 9 bytes, 0-31, looks like a per-area bit mask
+		public uint[] unknownUints36 = []; // 9 entries
+		public uint[] unknownUints37 = []; // 9 entries
+		public uint[] unknownUints38 = []; // 60 entries (5 blocks of 12), 0/1/2 in later saves
+		public uint[] unknownUints39 = [];
+		public uint[] unknownUints40 = [];
+		public uint[] unknownUints41 = [];
+		public uint[] unknownUints42 = [];
+		public uint[] unknownUints43 = [];
+		public uint[] unknownUints44 = [];
+		public uint[] unknownUints45 = [];
+		public uint[] unknownUints46 = [];
+		public uint[] pickupsCollectedPerArea = [];         // sums to pickupCount (minus Catwoman pickups)
+		public uint[] catwomanPickupsCollectedPerArea = []; // sums to 35 in a fully collected Catwoman save
+		public uint[] teethCollectedPerArea = [];           // only the steel mill slot is used,
+        public uint[] unknownUints50 = [];                  // 11 entries, grows with progress, meaning unknown
+		public uint[] unknownUints51 = [];                  // 9 entries, all 0 in every save seen so far
+		public uint[] balloonsCollectedPerArea = [];        // OWB and OWC
+		public uint[] penguinsCollectedPerArea = [];        // only the Museum slot is used
+		public uint[] camerasBrokenPerArea = [];            // sums to numCamerasBroken
+		public uint[] riddlesSolvedPerArea = [];
+
+		// ---- Segment 2: possibly experience / statistics follows sameish format as RPersistentData ----
+		public uint unknown59; // two members before BrokenGrundyHeadTally, 12 in later saves
+		public uint unknown60;
+		public uint brokenGrundyHeadTally;
+		public uint pickupCount; // Riddler pickups collected (247 base game, 282 with the 35 Catwoman pickups)
+		public uint pickupRevealsLeft;
+		public uint interrogatesLeft;
+		public uint numCamerasBroken;
+		public uint interrogatesPerformed;
+		public uint interrogatesWithTutorialPerformed;
+
+		// Physical challenges. 46 slots: slot 0 is always 0 idk why, 1-40 are the base game, 41-45 are the Catwoman DLC.
+		public float[] batChallengeCurrent = []; // latest attempt / running value
+		public float[] batChallengeBest = [];    // best value (distance, count, ...); stays 0 for done/not-done challenges
+		public uint[] batChallengeBeaten = [];   // 1 once the challenge is beaten, 0 otherwise
+
+		public float xp;
+		public float xpForPrevUpgrade;
+		public float xpForNextUpgrade;
+		public float xpLevel;
+		public uint xpOverUpgradeThreshold;
+		public uint upgradesBought;
+		public uint cwUpgradesBought;
+		public uint playerLevel;
+		public uint unknown76; // 1 in every save seen so far
+		public uint unknown77; // 1 in every save seen so far
 
 		public List<string> weaponStrings;
 
-		public uint unknown87;
+		public string unknownString87 = ""; // Empty early in the game, a level name later (e.g. Steel_B1)
 		public List<string> unknownStrings88;
 		public List<string> unknownStrings89;
 		public byte[] unknownBytes90;
 		public byte[] unknownBytes91;
-		public uint unknown92;
+		public List<string> unknownStrings92 = []; // Active objectives, empty until the first objective is active (e.g. Frontend.Objectives.CH2_Sub_2_Trail1)
 		public uint unknown93;
 		public List<string> unknownStrings94;
 		public string unknownString95;
@@ -293,8 +362,7 @@ namespace ArkhamSaveParser {
 		public uint unknown157;
 		public byte[] unknownBitFlags158;
 		public byte[] unknownBytes159;
-		public float[] unknownFloats160;
-		public uint[] unknownInts161;
+		public uint[] unknownUints160 = []; // 9 values, see the comment where they are read
 		public float[] unknownFloats162;
 		public float[] unknownFloats163;
 		public int unknown164;
@@ -307,6 +375,7 @@ namespace ArkhamSaveParser {
 
 		private void ParseSave() {
 			var reader = new BinaryReader(new MemoryStream(rawData));
+			parseReader = reader;
 
 			constant1 = ParserUtils.ReadUint32_BE(reader);
 			if (constant1 != 16) {
@@ -453,146 +522,51 @@ namespace ArkhamSaveParser {
 				return;
 			}
 
-			unknown35 = ParserUtils.ReadUint32_BE(reader); // 9
-			for (var i = 0; i < unknown35; ++i) {
-				reader.ReadByte(); // These range from 0 to 31, not sure what to make of them
-			}
+			unknownBytes35 = ParserUtils.ReadByteArray(reader);
+			unknownUints36 = ParserUtils.ReadUint32Array_BE(reader);
+			unknownUints37 = ParserUtils.ReadUint32Array_BE(reader);
+			unknownUints38 = ParserUtils.ReadUint32Array_BE(reader);
+			unknownUints39 = ParserUtils.ReadUint32Array_BE(reader);
+			unknownUints40 = ParserUtils.ReadUint32Array_BE(reader);
+			unknownUints41 = ParserUtils.ReadUint32Array_BE(reader);
+			unknownUints42 = ParserUtils.ReadUint32Array_BE(reader);
+			unknownUints43 = ParserUtils.ReadUint32Array_BE(reader);
+			unknownUints44 = ParserUtils.ReadUint32Array_BE(reader);
+			unknownUints45 = ParserUtils.ReadUint32Array_BE(reader);
+			unknownUints46 = ParserUtils.ReadUint32Array_BE(reader);
+			pickupsCollectedPerArea = ParserUtils.ReadUint32Array_BE(reader);
+			catwomanPickupsCollectedPerArea = ParserUtils.ReadUint32Array_BE(reader);
+			teethCollectedPerArea = ParserUtils.ReadUint32Array_BE(reader);
+			unknownUints50 = ParserUtils.ReadUint32Array_BE(reader);
+			unknownUints51 = ParserUtils.ReadUint32Array_BE(reader);
+			balloonsCollectedPerArea = ParserUtils.ReadUint32Array_BE(reader);
+			penguinsCollectedPerArea = ParserUtils.ReadUint32Array_BE(reader);
+			camerasBrokenPerArea = ParserUtils.ReadUint32Array_BE(reader);
+			riddlesSolvedPerArea = ParserUtils.ReadUint32Array_BE(reader);
 
-			unknown36 = ParserUtils.ReadUint32_BE(reader); // 9
-			for (var i = 0; i < unknown36; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			unknown37 = ParserUtils.ReadUint32_BE(reader); // 9
-			for (var i = 0; i < unknown37; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			unknown38 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
-			for (var i = 0; i < unknown38; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			unknown39 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
-			for (var i = 0; i < unknown39; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			unknown40 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
-			for (var i = 0; i < unknown40; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			unknown41 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
-			for (var i = 0; i < unknown41; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			unknown42 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
-			for (var i = 0; i < unknown42; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			unknown43 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
-			for (var i = 0; i < unknown43; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			unknown44 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
-			for (var i = 0; i < unknown44; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			unknown45 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
-			for (var i = 0; i < unknown45; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			unknown46 = ParserUtils.ReadUint32_BE(reader); // 0x3C (60)
-			for (var i = 0; i < unknown46; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			unknown47 = ParserUtils.ReadUint32_BE(reader); // 9
-			for (var i = 0; i < unknown47; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			unknown48 = ParserUtils.ReadUint32_BE(reader); // 9
-			for (var i = 0; i < unknown48; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			unknown49 = ParserUtils.ReadUint32_BE(reader); // 9
-			for (var i = 0; i < unknown49; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			unknown50 = ParserUtils.ReadUint32_BE(reader); // 0x0B (11)
-			for (var i = 0; i < unknown50; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			unknown51 = ParserUtils.ReadUint32_BE(reader); // 9
-			for (var i = 0; i < unknown51; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			unknown52 = ParserUtils.ReadUint32_BE(reader); // 9
-			for (var i = 0; i < unknown52; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			unknown53 = ParserUtils.ReadUint32_BE(reader); // 9
-			for (var i = 0; i < unknown53; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			unknown54 = ParserUtils.ReadUint32_BE(reader); // 9
-			for (var i = 0; i < unknown54; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			unknown55 = ParserUtils.ReadUint32_BE(reader); // 9
-			for (var i = 0; i < unknown55; ++i) {
-				ParserUtils.ReadUint32_BE(reader);
-			}
-
-			// No idea what these are
-		    unknown59 = ParserUtils.ReadUint32_BE(reader);
+			unknown59 = ParserUtils.ReadUint32_BE(reader);
 			unknown60 = ParserUtils.ReadUint32_BE(reader);
-			unknown61 = ParserUtils.ReadUint32_BE(reader);
-			unknown62 = ParserUtils.ReadUint32_BE(reader);
-			unknown63 = ParserUtils.ReadUint32_BE(reader);
-			unknown64 = ParserUtils.ReadUint32_BE(reader);
-			unknown65 = ParserUtils.ReadUint32_BE(reader);
-			unknown66 = ParserUtils.ReadUint32_BE(reader);
-			unknown67 = ParserUtils.ReadUint32_BE(reader);
+			brokenGrundyHeadTally = ParserUtils.ReadUint32_BE(reader);
+			pickupCount = ParserUtils.ReadUint32_BE(reader);
+			pickupRevealsLeft = ParserUtils.ReadUint32_BE(reader);
+			interrogatesLeft = ParserUtils.ReadUint32_BE(reader);
+			numCamerasBroken = ParserUtils.ReadUint32_BE(reader);
+			interrogatesPerformed = ParserUtils.ReadUint32_BE(reader);
+			interrogatesWithTutorialPerformed = ParserUtils.ReadUint32_BE(reader);
 
-			var numFloats3 = ParserUtils.ReadUint32_BE(reader); // 0x2E (46)
-			for (var i = 0; i < numFloats3; ++i) {
-				ParserUtils.ReadFloat_BE(reader);
-			}
+			batChallengeCurrent = ParserUtils.ReadFloatArray_BE(reader); // 46 entries
+			batChallengeBest = ParserUtils.ReadFloatArray_BE(reader); // 46 entries
+			batChallengeBeaten = ParserUtils.ReadUint32Array_BE(reader); // 46 entries, 4-byte integers (0 or 1), NOT floats
 
-			var numFloats4 = ParserUtils.ReadUint32_BE(reader); // 0x2E (46)
-			for (var i = 0; i < numFloats4; ++i) {
-				ParserUtils.ReadFloat_BE(reader);
-			}
+			xp = ParserUtils.ReadFloat_BE(reader);
+			xpForPrevUpgrade = ParserUtils.ReadFloat_BE(reader);
+			xpForNextUpgrade = ParserUtils.ReadFloat_BE(reader);
+			xpLevel = ParserUtils.ReadFloat_BE(reader);
 
-			var numFloats5 = ParserUtils.ReadUint32_BE(reader); // 0x2E (46)
-			for (var i = 0; i < numFloats5; ++i) {
-				ParserUtils.ReadFloat_BE(reader);
-			}
-
-			unknown68 = ParserUtils.ReadFloat_BE(reader);
-			unknown69 = ParserUtils.ReadFloat_BE(reader);
-			unknown70 = ParserUtils.ReadFloat_BE(reader);
-			unknown71 = ParserUtils.ReadFloat_BE(reader);
-
-			unknown72 = ParserUtils.ReadUint32_BE(reader);
-			unknown73 = ParserUtils.ReadUint32_BE(reader);
-			unknown74 = ParserUtils.ReadUint32_BE(reader);
-			unknown75 = ParserUtils.ReadUint32_BE(reader);
+			xpOverUpgradeThreshold = ParserUtils.ReadUint32_BE(reader);
+			upgradesBought = ParserUtils.ReadUint32_BE(reader);
+			cwUpgradesBought = ParserUtils.ReadUint32_BE(reader);
+			playerLevel = ParserUtils.ReadUint32_BE(reader);
 			unknown76 = ParserUtils.ReadUint32_BE(reader);
 			unknown77 = ParserUtils.ReadUint32_BE(reader);
 
@@ -620,13 +594,16 @@ namespace ArkhamSaveParser {
 
 			worldStrings = ParserUtils.ReadStringArray(reader); // Includes world name/room name, which chapters/LODs should be loaded, etc
 
-			unknown85 = ParserUtils.ReadUint32_BE(reader); // Padding?
+			// This used to be read as a uint32 "padding" value. It is the count of a string array, and the
+			// count is 0 in early saves, which is why it looked like padding.
+			unknownStrings85 = ParserUtils.ReadStringArray(reader);
 			weaponStrings = ParserUtils.ReadStringArray(reader); // e.g. StreamedWeapon_CombatRifle, StreamedWeapon_CombatBat
 
 			worldName = ParserUtils.ReadUE3String(reader);
 			roomName = ParserUtils.ReadUE3String(reader);
 
-			unknown87 = ParserUtils.ReadUint32_BE(reader); // Padding?
+			// Same as above: the 0 was the length of an empty string
+			unknownString87 = ParserUtils.ReadUE3String(reader);
 
 			unknownStrings88 = ParserUtils.ReadStringArray(reader); // OW flags?
 			unknownStrings89 = ParserUtils.ReadStringArray(reader);
@@ -641,7 +618,8 @@ namespace ArkhamSaveParser {
 
 			currentObjectiveTag = ParserUtils.ReadUE3String(reader);
 
-			unknown92 = ParserUtils.ReadUint32_BE(reader); // Padding?
+			// Same as above: the 0 was the count of an empty string array
+			unknownStrings92 = ParserUtils.ReadStringArray(reader);
 			unknownStrings94 = ParserUtils.ReadStringArray(reader); // Something objective related?
 			unknownString95 = ParserUtils.ReadUE3String(reader); // Something side mission related?
 
@@ -747,6 +725,18 @@ namespace ArkhamSaveParser {
 				unknownInts140[i] = ParserUtils.ReadUint32_BE(reader);
 			}
 
+			try {
+				ParseTail(reader);
+			} catch (Exception ex) when (tolerantTail) {
+				tailError = ex.Message;
+				tailErrorPosition = reader.BaseStream.Position;
+			}
+		}
+
+		// Everything after the six 12 entry int arrays. This block does not have one fixed layout: strings
+		// (and in some saves whole lists) appear in it depending on what the player is doing, and the
+		// layout below only matches saves where those are empty or in the arrangement TestSave1 has.
+		private void ParseTail(BinaryReader reader) {
 			unknownBytes143 = reader.ReadBytes(39); // Not sure how to read these, there's 3 stray bytes somewhere in here
 
 			unknownString145 = ParserUtils.ReadUE3String(reader); // Something side mission related
@@ -759,6 +749,12 @@ namespace ArkhamSaveParser {
 
 			unknown150 = ParserUtils.ReadFloat_BE(reader); // 0.6 on TestSave0, 0.5 on TestSave1
 			unknown151 = ParserUtils.ReadInt32_BE(reader); // -1
+			if (unknown151 != -1) {
+				// Every save with the layout below has -1 here. Early game saves (and saves made during some
+				// missions) have extra data in this block, so the fields between unknownBytes143 and here
+				// are probably not lined up with the real data in this save.
+				tailWarning = "unknown151 is " + unknown151 + " instead of -1, the fields from unknownBytes143 to unknown153 are probably misaligned in this save";
+			}
 			unknown152 = ParserUtils.ReadUint32_BE(reader); // 4 on TestSave0, 8 on TestSave1
 			unknown153 = ParserUtils.ReadUint32_BE(reader); // 8
 
@@ -768,20 +764,20 @@ namespace ArkhamSaveParser {
 			unknownBitFlags156 = reader.ReadBytes((int)numBitFlags155);
 
 			var numBitFlags157 = ParserUtils.ReadUint32_BE(reader); // 15
-			unknownBitFlags158 = reader.ReadBytes((int)numBitFlags155);
+			unknownBitFlags158 = reader.ReadBytes((int)numBitFlags157);
 
 			unknownBytes159 = reader.ReadBytes(33); // Padding? 0
 
-			var numFloats160 = ParserUtils.ReadUint32_BE(reader); // 3
-			unknownFloats160 = new float[numFloats160];
-			for (int i = 0; i < numFloats160; i++) {
-				unknownFloats160[i] = ParserUtils.ReadFloat_BE(reader);
-			}
-
-			var numInts161 = ParserUtils.ReadUint32_BE(reader); // 4
-			unknownInts161 = new uint[numInts161];
-			for (int i = 0; i < numInts161; i++) {
-				unknownInts161[i] = ParserUtils.ReadUint32_BE(reader);
+			// Always nine 4 byte values. These used to be read as a float array (count 3) followed by an
+			// int array (count 4), but the first value is not a count: it is 1 in an early game save
+			// (Courthouse) and 3 in later ones, and the fifth is 0 early and 4 later. Reading them as
+			// arrays made the parser run off the end of the file on early game saves.
+			//   TestSave0:  3, 1106649460 (float 30.77), 11, 11, 4, 3, 0, 0, 8
+			//   Courthouse: 1, 1091856018 (float 9.28),  11,  9, 0, 0, 0, 0, 4294967295 (-1)
+			//   TestSave1:  3, 0, 0, 0, 4, 4, 3, 0, 650
+			unknownUints160 = new uint[9];
+			for (var i = 0; i < unknownUints160.Length; ++i) {
+				unknownUints160[i] = ParserUtils.ReadUint32_BE(reader);
 			}
 
 			var numFloats162 = ParserUtils.ReadUint32_BE(reader); // 3
