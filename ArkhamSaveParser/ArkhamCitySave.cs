@@ -274,7 +274,7 @@ namespace ArkhamSaveParser {
 		public uint[] teethCollectedPerArea = [];           // unsure which slots they are but presumed to be the ones associated with the subway and sewers
 		public uint[] unknownUints50 = [];                  // 11 entries, grows with progress, meaning unknown
 		public uint[] unknownUints51 = [];                  // 9 entries, all 0 in every save seen so far
-		public uint[] balloonsCollectedPerArea = [];        // only industrial and bowery
+		public uint[] balloonsCollectedPerArea = [];        // only industrial and amusment
 		public uint[] penguinsCollectedPerArea = [];        // only the Museum slot is used
 		public uint[] camerasBrokenPerArea = [];            // sums to numCamerasBroken
 		public uint[] riddlesSolvedPerArea = [];
