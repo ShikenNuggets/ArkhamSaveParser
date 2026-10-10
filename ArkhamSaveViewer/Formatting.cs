@@ -2,19 +2,13 @@ using System.Collections;
 using System.Globalization;
 
 namespace ArkhamSaveViewer {
-	/// <summary>Turns parsed field types and values into the text shown in the viewer and written to the dumps.</summary>
 	internal static class Formatting {
-		public static string TypeName(Type type) {
-			if (type == typeof(uint)) return "uint";
-			if (type == typeof(float)) return "float";
-			if (type == typeof(string)) return "string";
-			if (type == typeof(uint[])) return "uint[]";
-			if (type == typeof(int[])) return "int[]";
-			if (type == typeof(int[][])) return "int[][]";
-			if (type == typeof(float[])) return "float[]";
-			if (type == typeof(byte[])) return "byte[]";
-			if (type == typeof(List<string>)) return "string list";
-			if (type == typeof(List<byte[]>)) return "byte[] list";
+		public static string GetTypeName(Type type) {
+			if (type.GenericTypeArguments.Length > 0) {
+				var args = string.Join(", ", type.GenericTypeArguments.Select(GetTypeName));
+				return type.Name.Split('`')[0] + "<" + args + ">";
+			}
+
 			return type.Name;
 		}
 

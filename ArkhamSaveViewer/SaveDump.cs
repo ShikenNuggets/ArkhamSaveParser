@@ -44,7 +44,7 @@ namespace ArkhamSaveViewer {
 					continue;
 				}
 
-				result.Add((prefix + field.Name, Formatting.TypeName(field.FieldType), Formatting.Format(field.GetValue(save))));
+				result.Add((prefix + field.Name, Formatting.GetTypeName(field.FieldType), Formatting.Format(field.GetValue(save))));
 			}
 		}
 
