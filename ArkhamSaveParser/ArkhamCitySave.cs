@@ -159,18 +159,18 @@ namespace ArkhamSaveParser {
 
 		public float totalCompletionWithDLC;
 
-		public List<string> progressStrings;
+		public List<string> progressStrings = [];
 
-		public string lastSelectedRiddlersRevengeCharacter;
+		public string lastSelectedRiddlersRevengeCharacter = string.Empty;
 
 		public uint segment2HeaderA;
 		public uint segment2HeaderB;
 
-		public List<string> worldStrings;
+		public List<string> worldStrings = [];
 
-		public string lastRoomNameUserFacing;
-		public string currentObjectiveTag;
-		public string lastEquippedGadget;
+		public string lastRoomNameUserFacing = string.Empty;
+		public string currentObjectiveTag = string.Empty;
+		public string lastEquippedGadget = string.Empty;
 
 		// Unknown Values
 		public uint unknown1;
@@ -179,15 +179,15 @@ namespace ArkhamSaveParser {
 		public uint unknown7;
 		public uint unknown9;
 
-		public uint[] unknownSettings0;
+		public uint[] unknownSettings0 = [];
 
 		public uint unknown10;
 		public uint unknown11;
 		public uint unknown12;
 
-		public List<byte[]> unknownStructs;
-		public byte[] unknownBytes1;
-		public byte[] unknownBytes2;
+		public List<byte[]> unknownStructs = [];
+		public byte[] unknownBytes1 = [];
+		public byte[] unknownBytes2 = [];
 		public uint unknown13;
 		public uint unknown14;
 		public uint unknown15;
@@ -195,52 +195,52 @@ namespace ArkhamSaveParser {
 		public uint unknown17;
 		public uint unknown18;
 
-		public uint[] unknownUints1;
+		public uint[] unknownUints1 = [];
 
-		public uint[] unknownUints2;
+		public uint[] unknownUints2 = [];
 
 		public uint unknown20;
 		public uint unknown21;
 		
 		public uint unknown22;
-		public byte[] unknownBytes22;
+		public byte[] unknownBytes22 = [];
 
 
 		public uint unknown23;
-		public byte[] unknownBytes23;
+		public byte[] unknownBytes23 = [];
 
 		public uint unknown24;
-		public byte[] unknownBytes24;
+		public byte[] unknownBytes24 = [];
 
 		public uint unknown25;
-		public byte[] unknownBytes25;
+		public byte[] unknownBytes25 = [];
 
 		public uint unknown26;
-		public byte[] unknownBytes26;
+		public byte[] unknownBytes26 = [];
 
 		public uint unknown27;
-		public byte[] unknownBytes27;
+		public byte[] unknownBytes27 = [];
 
 		public uint unknown28;
-		public byte[] unknownBytes28;
+		public byte[] unknownBytes28 = [];
 
 		public uint unknown29;
-		public byte[] unknownBytes29;
+		public byte[] unknownBytes29 = [];
 
 		public uint unknown30;
-		public byte[] unknownBytes30;
+		public byte[] unknownBytes30 = [];
 
 		public uint unknown31;
-		public byte[] unknownBytes31;
+		public byte[] unknownBytes31 = [];
 
 		public uint unknown32;
-		public byte[] unknownBytes32;
+		public byte[] unknownBytes32 = [];
 
-		public byte[] unknownBytes33;
+		public byte[] unknownBytes33 = [];
 
-		public float[] unknownFloats1;
+		public float[] unknownFloats1 = [];
 
-		public float[] unknownFloats2;
+		public float[] unknownFloats2 = [];
 
 		public uint unknown33;
 		public uint unknown34;
@@ -304,89 +304,89 @@ namespace ArkhamSaveParser {
 		public uint unknown76; // 1 in every save seen so far
 		public uint unknown77; // 1 in every save seen so far
 
-		public List<string> weaponStrings;
+		public List<string> weaponStrings = [];
 
 		public string unknownString87 = ""; // Empty early in the game, a level name later (e.g. Steel_B1)
-		public List<string> unknownStrings88;
-		public List<string> unknownStrings89;
-		public byte[] unknownBytes90;
-		public byte[] unknownBytes91;
+		public List<string> unknownStrings88 = [];
+		public List<string> unknownStrings89 = [];
+		public byte[] unknownBytes90 = [];
+		public byte[] unknownBytes91 = [];
 		public List<string> unknownStrings92 = []; // Active objectives, empty until the first objective is active (e.g. Frontend.Objectives.CH2_Sub_2_Trail1)
 		public uint unknown93;
-		public List<string> unknownStrings94;
-		public string unknownString95;
+		public List<string> unknownStrings94 = [];
+		public string unknownString95 = string.Empty;
 		public uint unknown96;
 		public float unknown97;
 		public uint unknown98;
 		public uint unknown99;
 		public uint unknown100;
 		public uint unknown101;
-		public string unknownString102;
-		public byte[] unknownBytes103;
+		public string unknownString102 = string.Empty;
+		public byte[] unknownBytes103 = [];
 		public uint unknown104;
 		public uint unknown105;
 		public uint unknown106;
-		public List<string> unknownStrings107;
-		public byte[] unknownBytes108;
-		public string unknownString109;
-		public byte[] unknownBytes110;
+		public List<string> unknownStrings107 = [];
+		public byte[] unknownBytes108 = [];
+		public string unknownString109 = string.Empty;
+		public byte[] unknownBytes110 = [];
 		public uint unknown111;
-		public byte[] unknownBytes112;
+		public byte[] unknownBytes112 = [];
 		public uint unknown113;
-		public byte[] unknownBytes114;
+		public byte[] unknownBytes114 = [];
 		public uint unknown115;
-		public byte[] unknownFlagBytes116;
+		public byte[] unknownFlagBytes116 = [];
 		public uint unknown117;
-		public byte[] unknownFlagBytes118;
-		public uint[] unknownInts119;
-		public float[] unknownFloats120;
-		public float[] unknownFloats121;
-		public List<string> unknownStrings122;
-		public List<string> unknownStrings123;
-		public List<string> unknownStrings124;
+		public byte[] unknownFlagBytes118 = [];
+		public uint[] unknownInts119 = [];
+		public float[] unknownFloats120 = [];
+		public float[] unknownFloats121 = [];
+		public List<string> unknownStrings122 = [];
+		public List<string> unknownStrings123 = [];
+		public List<string> unknownStrings124 = [];
 		public uint unknown125;
 		public float unknown126;
 		public float unknown127;
 		public float unknown128;
-		public List<string> unknownStrings129;
-		public List<string> unknownStrings130;
-		public List<string> unknownStrings131;
-		public List<string> unknownStrings132;
-		public List<string> unknownStrings133;
-		public List<string> unknownStrings134;
-		public uint[] unknownInts135;
-		public uint[] unknownInts136;
-		public uint[] unknownInts137;
-		public uint[] unknownInts138;
-		public uint[] unknownInts139;
-		public uint[] unknownInts140;
+		public List<string> unknownStrings129 = [];
+		public List<string> unknownStrings130 = [];
+		public List<string> unknownStrings131 = [];
+		public List<string> unknownStrings132 = [];
+		public List<string> unknownStrings133 = [];
+		public List<string> unknownStrings134 = [];
+		public uint[] unknownInts135 = [];
+		public uint[] unknownInts136 = [];
+		public uint[] unknownInts137 = [];
+		public uint[] unknownInts138 = [];
+		public uint[] unknownInts139 = [];
+		public uint[] unknownInts140 = [];
 		public uint unknown141;
 		public uint unknown142;
-		public byte[] unknownBytes143; // Everything between unknownInts140 and unknown150. Its length varies (85 to 132 bytes), see ParseTail
+		public byte[] unknownBytes143 = []; // Everything between unknownInts140 and unknown150. Its length varies (85 to 132 bytes), see ParseTail
 		public List<string> unknownStrings143 = []; // Strings found inside unknownBytes143 (SS_* side story flags, OW_* main mission names, ...)
 		public float unknown150;
 		public int unknown151; // -1 in most saves, but 14, 15 or 0 in some early game saves
 		public uint unknown152;
 		public uint unknown153;
-		public byte[] unknownBitFlags154;
+		public byte[] unknownBitFlags154 = [];
 		public uint unknown155;
-		public byte[] unknownBitFlags156;
+		public byte[] unknownBitFlags156 = [];
 		public uint unknown157;
-		public byte[] unknownBitFlags158;
+		public byte[] unknownBitFlags158 = [];
 		public List<string> unknownStrings159A = []; // 159A-D are four lists with the same length (0, 1 or 2 so far)
 		public List<string> unknownStrings159B = [];
 		public int[] unknownInts159C = [];
 		public int[] unknownInts159D = [];
-		public byte[] unknownBytes159; // 17 bytes, always 0 so far
+		public byte[] unknownBytes159 = []; // 17 bytes, always 0 so far
 		public uint[] unknownUints160 = []; // 9 values, see the comment where they are read
-		public float[] unknownFloats162;
-		public float[] unknownFloats163;
+		public float[] unknownFloats162 = [];
+		public float[] unknownFloats163 = [];
 		public int unknown164;
 		public int unknown165;
 		public uint unknown166;
 		public byte unknownByte167;
-		public float[] unknownFloats168;
-		public float[] unknownFloats169;
+		public float[] unknownFloats168 = [];
+		public float[] unknownFloats169 = [];
 
 		// The fixed size (830 byte) block that ends every copy of segment 3. unknownFloats168/169 used to be followed by a
 		// byte array here, but the block does not depend on their length. Layout: 89 bytes, six lists of 16 ints, 333 bytes.
