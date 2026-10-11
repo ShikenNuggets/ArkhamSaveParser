@@ -33,17 +33,17 @@ namespace ArkhamSaveParser.Tests {
 			Assert.Contains("PickedUp_OWA_Pickup_31", citySave.GetCollectibles());
 			Assert.Contains("PickedUp_OWA_Camera_5", citySave.GetCollectibles());
 
-			//Assert.AreEqual("Church", citySave.GetWorldName());
-			//Assert.AreEqual("Church_B1", citySave.GetRoomName());
+			Assert.AreEqual("Church", citySave.GetWorldName());
+			Assert.AreEqual("Church_B1", citySave.GetRoomName());
 
-			//Assert.AreEqual(861, citySave.GetFlagStrings().Count);
-			//Assert.Contains("Unlocked_HangAttackTd", citySave.GetFlagStrings());
-			//Assert.Contains("PickedUp_OWB_Balloons_4", citySave.GetFlagStrings());
+			Assert.AreEqual(861, citySave.GetFlagStrings().Count);
+			Assert.Contains("Unlocked_HangAttackTd", citySave.GetFlagStrings());
+			Assert.Contains("PickedUp_OWB_Balloons_4", citySave.GetFlagStrings());
 
-			//Assert.Contains("GothamFM", citySave.GetRadioFrequencies());
-			//Assert.Contains("Puffin-Zero", citySave.GetRadioFrequencies());
+			Assert.Contains("GothamFM", citySave.GetRadioFrequencies());
+			Assert.Contains("Puffin-Zero", citySave.GetRadioFrequencies());
 
-			//Assert.AreEqual("Playable_Batman", citySave.GetLastUsedCharacter());
+			Assert.AreEqual("Playable_Batman", citySave.GetLastUsedCharacter());
 		}
 
 		[TestMethod]
@@ -57,18 +57,18 @@ namespace ArkhamSaveParser.Tests {
 
 			Assert.Contains("PDLC_Harley_Balloons_Popped_1", citySave.GetCollectibles());
 
-			//Assert.AreEqual("OW", citySave.GetWorldName());
-			//Assert.AreEqual("OW_C5", citySave.GetRoomName());
+			Assert.AreEqual("OW", citySave.GetWorldName());
+			Assert.AreEqual("OW_C5", citySave.GetRoomName());
 
-			//Assert.AreEqual(8105, citySave.GetFlagStrings().Count);
-			//Assert.Contains("Unlocked_HangAttackTd", citySave.GetFlagStrings());
-			//Assert.Contains("OW_C2.RFractureWall_7.R_25", citySave.GetFlagStrings());
-			//Assert.Contains("Steel.RLevelTransitionDoubleDoors_0.InvSpoke0", citySave.GetFlagStrings());
+			Assert.AreEqual(8105, citySave.GetFlagStrings().Count);
+			Assert.Contains("Unlocked_HangAttackTd", citySave.GetFlagStrings());
+			Assert.Contains("OW_C2.RFractureWall_7.R_25", citySave.GetFlagStrings());
+			Assert.Contains("Steel.RLevelTransitionDoubleDoors_0.InvSpoke0", citySave.GetFlagStrings());
 
-			//Assert.Contains("GothamFM", citySave.GetRadioFrequencies());
-			//Assert.Contains("Riddler_Station_04", citySave.GetRadioFrequencies());
+			Assert.Contains("GothamFM", citySave.GetRadioFrequencies());
+			Assert.Contains("Riddler_Station_04", citySave.GetRadioFrequencies());
 
-			//Assert.AreEqual("Playable_Batman", citySave.GetLastUsedCharacter());
+			Assert.AreEqual("Playable_Batman", citySave.GetLastUsedCharacter());
 		}
 
 		[TestMethod]
