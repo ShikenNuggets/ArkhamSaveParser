@@ -4,6 +4,67 @@ using System.Reflection.PortableExecutable;
 using System.Text;
 
 namespace ArkhamSaveParser {
+	public struct PhysicalChallengeInfo {
+		public PhysicalChallengeInfo(){}
+
+		public float currentValue = 0.0f;
+		public float bestValue = 0.0f;
+		public bool beaten = false;
+	}
+
+	public enum PhysicalChallenges {
+		None = 0,
+
+		// Batman
+		Glide150 = 1,
+		Glide250 = 2,
+		Dive50 = 3,
+		LineLaunchConsecutive = 4,
+		Glide30Water = 5,
+		Combo20 = 6,
+		QuickfireGadgets3 = 7,
+		Variation5 = 8,
+		AerialAttacks = 9,
+		SlideTrip = 10,
+		Beatdowns = 11,
+		CounterProjectile = 12,
+		BatarangExplosive = 13,
+		GlideBoostAttack = 14,
+		ComboBatarangs = 15,
+		BatclawSlams = 16,
+		QuickfireRECs = 17,
+		QuickfireGels = 18,
+		QuickfireFreezeGrenades = 19,
+		SmokeFriendlyFire = 20,
+		BatarangFinisher = 21,
+		RecScare = 22,
+		RecFriendlyFire = 23,
+		RecArmored = 24,
+		FreezeCluster = 25,
+		FreezeTakedown = 26,
+		FreezeBatarang = 27,
+		SmokeTakedown = 28,
+		BatclawDisarm = 29,
+		GunDisruptor = 30,
+		RecJammer = 31,
+		GrapnelBoostTakedown = 32,
+		ReverseBatarang = 33,
+		SonicBatarang = 34,
+		LineLaunchKicks = 35,
+		LineLaunchTakedown = 36,
+		InvertedTakedown = 37,
+		KnockoutSmashes = 38,
+		RemoteBatarangCatch = 39,
+		RemoteBatarangBoostHit = 40,
+
+		// Catwoman
+		Cat_Caltrops = 41,
+		Cat_SpecialWhipAndTrip = 42,
+		Cat_PerfectClawClimb = 43,
+		Cat_PounceAttacks = 44,
+		Cat_QuickfireWhip = 45
+	}
+
 	public class ArkhamCitySave : DecompressedSave {
 		public ArkhamCitySave(CompressedSave save) : base(save) {
 			ParseSave();
@@ -125,6 +186,20 @@ namespace ArkhamSaveParser {
 			}
 
 			return count;
+		}
+
+		public PhysicalChallengeInfo GetPhysicalChallengeInfo(PhysicalChallenges challenge) {
+			var challengeIdx = (int)challenge;
+			if (challengeIdx > batChallengeCurrent.Length || challengeIdx > batChallengeBest.Length || challengeIdx > batChallengeBeaten.Length) {
+				return default; // Probably checking Catwoman challenges on a non-Catwoman save
+			}
+
+			PhysicalChallengeInfo info;
+			info.currentValue = batChallengeCurrent[challengeIdx];
+			info.bestValue = batChallengeBest[challengeIdx];
+			info.beaten = batChallengeBeaten[challengeIdx] != 0;
+
+			return info;
 		}
 
 		private uint day = 0;
