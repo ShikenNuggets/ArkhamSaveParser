@@ -1,6 +1,6 @@
 ## Physical challenge slot names
 
-Slot numbers are the array index used by `batChallengeCurrent`, `batChallengeBest` and `batChallengeBeaten`. The slots are **not** in the same order as the in-game challenge menu. Slots 1-40 appear to be the base game challenges and 41-45 the Catwoman DLC ones. The names below were assigned by hand in the viewer, and spelling was tidied (the wording is otherwise the original label). Entries marked "unconfirmed" are still being checked.
+Slot numbers are the array index used by `batChallengeCurrent`, `batChallengeBest` and `batChallengeBeaten`. The slots are **not** in the same order as the in-game challenge menu. Slots 1-40 appear to be the base game challenges and 41-45 the Catwoman DLC ones. The names below were assigned by hand in the viewer, and spelling was tidied (the wording is otherwise the original label).
 
 | Slot | Challenge |
 |---|---|
@@ -23,7 +23,7 @@ Slot numbers are the array index used by `batChallengeCurrent`, `batChallengeBes
 | 17 | Use quickfire rec during a combo |
 | 18 | Use quickfire gel during a combo |
 | 19 | Use freeze nade during a combo |
-| 20 | Use smoke pellet to disorientate enemies into attacking each other (unconfirmed) |
+| 20 | Use smoke pellet to disorientate enemies into attacking each other |
 | 21 | Finish a fight with a combo batarang |
 | 22 | Use rec on an armed enemy to scare another thug near them |
 | 23 | Use rec to force an enemy to hit another enemy |
@@ -31,7 +31,7 @@ Slot numbers are the array index used by `batChallengeCurrent`, `batChallengeBes
 | 25 | Use freeze cluster to immobilize 3 or more henchmen at one time |
 | 26 | Freeze nade to freeze an armed enemy before taking him out |
 | 27 | Freeze nade an enemy then batarang to knock them down |
-| 28 | Use the smoke pellet to disorientate an armed enemy and follow up with a takedown (unconfirmed) |
+| 28 | Use the smoke pellet to disorientate an armed enemy and follow up with a takedown |
 | 29 | Disarm an enemy using the batclaw disarm |
 | 30 | Use the disruptor on an armed enemy then get him to use it |
 | 31 | Use the rec to temporarily disable a backpack jammer device |
