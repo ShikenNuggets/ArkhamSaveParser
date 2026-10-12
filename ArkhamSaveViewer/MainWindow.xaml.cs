@@ -220,11 +220,14 @@ namespace ArkhamSaveViewer {
 				challengeRows.Add(new ChallengeRow(labels, slot, cur, bst, beaten[slot]) { IsChanged = changed, IsBeaten = !changed && beaten[slot] == 1 });
 			}
 
+			var collectibleRows = save.GetCollectibles().Select(c => new CollectibleRow(labels, c)).ToList();
+
 			previous = now;
 
 			FieldGrid.ItemsSource = fields;
 			FooterGrid.ItemsSource = footerRows;
 			ChallengeGrid.ItemsSource = challengeRows;
+			CollectibleGrid.ItemsSource = collectibleRows;
 
 			ApplyFilter();
 
