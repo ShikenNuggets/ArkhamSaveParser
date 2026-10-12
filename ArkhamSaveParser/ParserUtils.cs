@@ -36,7 +36,7 @@ namespace ArkhamSaveParser {
 
 			int utf16Bytes = (Math.Abs(length) * 2) - 2;
 			var strBytes = reader.ReadBytes(utf16Bytes);
-			reader.ReadByte(); // Discard the null terminator byte
+			reader.ReadBytes(2); // Discard the null terminator bytes
 			return Encoding.Unicode.GetString(strBytes);
 		}
 
