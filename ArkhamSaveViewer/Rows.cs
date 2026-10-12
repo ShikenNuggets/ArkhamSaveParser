@@ -64,6 +64,14 @@ namespace ArkhamSaveViewer {
 		public string Name { get; }
 	}
 
+	internal sealed class FlagRow : LabelRow {
+		public FlagRow(LabelStore store, string name) : base(store, "flag:" + name) {
+			Name = name;
+		}
+
+		public string Name { get; }
+	}
+
 	internal sealed class FooterRow : LabelRow {
 		public FooterRow(LabelStore store, int copy, int offset, string hex, string dec) : base(store, "footer:" + offset) {
 			Copy = copy;

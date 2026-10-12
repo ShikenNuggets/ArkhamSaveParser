@@ -114,6 +114,17 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
+
+            <TabItem Header="Flag strings">
+                <DataGrid x:Name="FlagGrid" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
+                          CanUserSortColumns="False" CanUserResizeRows="False" HeadersVisibility="Column" SelectionMode="Single"
+                          SelectionUnit="FullRow" GridLinesVisibility="All" HorizontalGridLinesBrush="{DynamicResource GridLineBrush}" VerticalGridLinesBrush="{DynamicResource GridLineBrush}" LoadingRow="Grid_LoadingRow">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="" Binding="{Binding Name}" IsReadOnly="True" Width="600" ElementStyle="{StaticResource Mono}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
             <TabItem Header="Footer bytes">
                 <DataGrid x:Name="FooterGrid" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
                           CanUserSortColumns="False" CanUserResizeRows="False" HeadersVisibility="Column" SelectionMode="Single"

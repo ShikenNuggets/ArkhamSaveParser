@@ -222,6 +222,7 @@ namespace ArkhamSaveViewer {
 
 			var collectibleRows = save.GetCollectibles().Select(c => new CollectibleRow(labels, c)).ToList();
 			var upgradeRows = save.GetUpgrades().Select(u => new UpgradeRow(labels, u)).ToList();
+			var flagRows = save.GetFlagStrings().Select(f => new FlagRow(labels, f)).ToList();
 
 			previous = now;
 
@@ -230,6 +231,7 @@ namespace ArkhamSaveViewer {
 			ChallengeGrid.ItemsSource = challengeRows;
 			CollectibleGrid.ItemsSource = collectibleRows;
 			UpgradeGrid.ItemsSource = upgradeRows;
+			FlagGrid.ItemsSource = flagRows;
 
 			ApplyFilter();
 
@@ -244,20 +246,38 @@ namespace ArkhamSaveViewer {
 			ShowDetail();
 		}
 
-		private void ApplyFilter() {
-			if (FieldGrid.ItemsSource == null) {
+		private void ApplyFilterToGrid(DataGrid grid) {
+			if (grid == null || grid.ItemsSource == null) {
 				return;
 			}
 
 			var text = FilterBox.Text.Trim();
 			var unknownOnly = UnknownOnly.IsChecked == true;
-			var view = CollectionViewSource.GetDefaultView(FieldGrid.ItemsSource);
+			var view = CollectionViewSource.GetDefaultView(grid.ItemsSource);
 			view.Filter = item => {
-				var name = ((FieldRow)item).Name;
+				if (item == null) {
+					return false;
+				}
+
+				dynamic dyn = item;
+
+				string name = dyn.Name;
+				if (string.IsNullOrWhiteSpace(name)) {
+					return false;
+				}
+
 				return (text.Length == 0 || name.Contains(text, StringComparison.OrdinalIgnoreCase))
 					&& (!unknownOnly || name.StartsWith("unknown", StringComparison.Ordinal));
 			};
+
 			view.Refresh();
+		}
+
+		private void ApplyFilter() {
+			ApplyFilterToGrid(FieldGrid);
+			ApplyFilterToGrid(CollectibleGrid);
+			ApplyFilterToGrid(UpgradeGrid);
+			ApplyFilterToGrid(FlagGrid);
 		}
 
 		private void FieldGrid_SelectionChanged(object sender, SelectionChangedEventArgs e) => ShowDetail();
