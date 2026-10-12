@@ -221,6 +221,7 @@ namespace ArkhamSaveViewer {
 			}
 
 			var collectibleRows = save.GetCollectibles().Select(c => new CollectibleRow(labels, c)).ToList();
+			var upgradeRows = save.GetUpgrades().Select(u => new UpgradeRow(labels, u)).ToList();
 
 			previous = now;
 
@@ -228,6 +229,7 @@ namespace ArkhamSaveViewer {
 			FooterGrid.ItemsSource = footerRows;
 			ChallengeGrid.ItemsSource = challengeRows;
 			CollectibleGrid.ItemsSource = collectibleRows;
+			UpgradeGrid.ItemsSource = upgradeRows;
 
 			ApplyFilter();
 
