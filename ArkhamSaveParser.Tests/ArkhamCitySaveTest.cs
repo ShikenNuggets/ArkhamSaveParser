@@ -105,23 +105,11 @@ namespace ArkhamSaveParser.Tests {
 		}
 
 		[TestMethod]
-		public void TolerantParseKeepsFieldsBeforeAnError() {
-			// A save that parses fine reports no error in tolerant mode
-			var compressedSave = new CompressedSave("TestData/City/CourthouseSave.sgd");
-			var citySave = new ArkhamCitySave(compressedSave, true);
-
-			Assert.IsNull(citySave.parseError);
-			Assert.AreEqual(-1, citySave.parseErrorPosition);
-			Assert.AreEqual("Court", citySave.GetWorldName());
-		}
-
-		[TestMethod]
 		public void ParseEnterChurchSaveObjectiveList() {
 			// Field 92 used to be read as a padding uint32. It is the count of a string array, and it is not empty here.
 			var compressedSave = new CompressedSave("TestData/City/EnterChurchSave.sgd");
-			var citySave = new ArkhamCitySave(compressedSave, true);
+			var citySave = new ArkhamCitySave(compressedSave);
 
-			Assert.IsNull(citySave.parseError);
 			Assert.AreEqual("OW", citySave.GetWorldName());
 			Assert.AreEqual("OW_A2", citySave.GetRoomName());
 			Assert.AreEqual("6/400", citySave.GetRiddlesString());
@@ -134,9 +122,8 @@ namespace ArkhamSaveParser.Tests {
 		public void ParseSteelMillSaveLevelLists() {
 			// Fields 85 and 87 used to be read as padding. They are a string array and a string, both empty early on.
 			var compressedSave = new CompressedSave("TestData/City/SteelMillSave.sgd");
-			var citySave = new ArkhamCitySave(compressedSave, true);
+			var citySave = new ArkhamCitySave(compressedSave);
 
-			Assert.IsNull(citySave.parseError);
 			Assert.AreEqual("Steel", citySave.GetWorldName());
 			Assert.AreEqual("Steel_C1", citySave.GetRoomName());
 			Assert.AreEqual("24/400", citySave.GetRiddlesString());
@@ -154,10 +141,8 @@ namespace ArkhamSaveParser.Tests {
 			foreach (var name in new[] { "CourthouseSave", "EnterChurchSave", "SteelMillSave", "TestSave0", "TestSave1" }) {
 				var path = "TestData/City/" + name + ".sgd";
 				var strict = new ArkhamCitySave(new CompressedSave(path));
-				var tolerant = new ArkhamCitySave(new CompressedSave(path), true);
+				var tolerant = new ArkhamCitySave(new CompressedSave(path));
 
-				Assert.IsNull(tolerant.parseError, name);
-				Assert.IsNull(tolerant.tailError, name);
 				Assert.AreEqual(15u, strict.unknown155, name);
 				Assert.AreEqual(15u, strict.unknown157, name);
 				Assert.AreEqual(9, strict.unknownUints160.Length, name);
@@ -217,10 +202,8 @@ namespace ArkhamSaveParser.Tests {
 
 		[TestMethod]
 		public void ParseNewGamePlusWithCatwomanHasThreeCopiesOfSegment3() {
-			var citySave = new ArkhamCitySave(new CompressedSave("TestData/City/NewGamePlusCatwomanSave.sgd"), true);
+			var citySave = new ArkhamCitySave(new CompressedSave("TestData/City/NewGamePlusCatwomanSave.sgd"));
 
-			Assert.IsNull(citySave.parseError);
-			Assert.IsNull(citySave.tailError);
 			Assert.AreEqual("OW_A5", citySave.GetRoomName());
 			Assert.AreEqual(1, citySave.additionalSegment3s.Count);
 			var second = citySave.additionalSegment3s[0];

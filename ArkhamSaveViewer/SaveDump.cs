@@ -68,7 +68,7 @@ namespace ArkhamSaveViewer {
 					src.CopyTo(dst);
 				}
 
-				return new ArkhamCitySave(new CompressedSave(temp), true);
+				return new ArkhamCitySave(new CompressedSave(temp));
 			} finally {
 				try { File.Delete(temp); } catch { }
 			}
@@ -97,8 +97,7 @@ namespace ArkhamSaveViewer {
 						}
 					}
 
-					var error = save.parseError ?? save.tailError ?? "";
-					rows.Add((relative, error, values, CollectFooters(save)));
+					rows.Add((relative, "", values, CollectFooters(save)));
 				} catch (Exception ex) {
 					rows.Add((relative, "FAILED: " + ex.Message, new Dictionary<string, string>(), new List<byte[]>()));
 				}

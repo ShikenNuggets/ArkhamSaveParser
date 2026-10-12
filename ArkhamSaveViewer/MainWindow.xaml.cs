@@ -168,13 +168,7 @@ namespace ArkhamSaveViewer {
 
 				lastWriteUtc = File.GetLastWriteTimeUtc(currentPath);
 				Populate(save);
-				if (save.parseError != null) {
-					SetStatus("PARSE ERROR at byte " + save.parseErrorPosition + ": " + save.parseError + "  (fields after this point are defaults/empty)", StatusKind.Error);
-				} else if (save.tailError != null) {
-					SetStatus("Loaded, but the last block (from unknownBytes143 on) was not decoded for this save: " + save.tailError + " (byte " + save.tailErrorPosition + "). Everything before it is fine.", StatusKind.Warning);
-				} else {
-					SetStatus("Loaded " + Path.GetFileName(currentPath) + " at " + DateTime.Now.ToString("HH:mm:ss") + ". Highlighted = changed since the previous load.", StatusKind.Normal);
-				}
+				SetStatus("Loaded " + Path.GetFileName(currentPath) + " at " + DateTime.Now.ToString("HH:mm:ss") + ". Highlighted = changed since the previous load.", StatusKind.Normal);
 			} catch (Exception ex) {
 				SetStatus("Failed to load: " + ex.Message, StatusKind.Error);
 			} finally {

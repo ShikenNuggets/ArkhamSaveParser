@@ -70,50 +70,16 @@ namespace ArkhamSaveParser {
 			ParseSave();
 		}
 
-		/// <summary>
-		/// When tolerant is true a parsing error is not thrown. Instead it is stored in parseError (with the
-		/// byte offset in parseErrorPosition) and every field that was read before the error keeps its value.
-		/// </summary>
-		public ArkhamCitySave(CompressedSave save, bool tolerant) : base(save) {
-			tolerantTail = tolerant;
-			if (!tolerant) {
-				ParseSave();
-				return;
-			}
-
-			try {
-				ParseSave();
-			} catch (Exception ex) {
-				parseError = ex.Message;
-				parseErrorPosition = parseReader != null ? parseReader.BaseStream.Position : -1;
-			}
-		}
-
-		private ArkhamCitySave(byte[] raw, long position, bool tolerant) : base(raw) {
-			tolerantTail = tolerant;
+		private ArkhamCitySave(byte[] raw, long position) : base(raw) {
 			var reader = new BinaryReader(new MemoryStream(rawData));
 			reader.BaseStream.Position = position;
 			parseReader = reader;
 			segment3Start = position;
-			if (!tolerant) {
-				ParseSegment3(reader);
-				return;
-			}
 
-			try {
-				ParseSegment3(reader);
-			} catch (Exception ex) {
-				parseError = ex.Message;
-				parseErrorPosition = reader.BaseStream.Position;
-			}
+			ParseSegment3(reader);
 		}
 
 		public long segment3Start = -1; // Offset of this copy of segment 3 in the decompressed data (-1 for the first one: see worldStrings)
-		public string? parseError; // Only set by the tolerant constructor
-		public string? tailError; // Only set by the tolerant constructor: the last block of segment 3 was not understood
-		public long tailErrorPosition = -1;
-		private bool tolerantTail = false;
-		public long parseErrorPosition = -1; // Offset in the decompressed data where the error happened
 		private BinaryReader? parseReader;
 
 		public string GetDateString() {
@@ -829,12 +795,7 @@ namespace ArkhamSaveParser {
 				unknownInts140[i] = ParserUtils.ReadUint32_BE(reader);
 			}
 
-			try {
-				ParseTail(reader);
-			} catch (Exception ex) when (tolerantTail) {
-				tailError = ex.Message;
-				tailErrorPosition = reader.BaseStream.Position;
-			}
+			ParseTail(reader);
 		}
 
 		// Everything after the six 12 entry int arrays. The part between unknownInts140 and unknown150 has no
@@ -930,16 +891,8 @@ namespace ArkhamSaveParser {
 
 			if (reader.BaseStream.Position < reader.BaseStream.Length) {
 				// Another copy of segment 3 follows
-				var extra = new ArkhamCitySave(rawData, reader.BaseStream.Position, tolerantTail);
+				var extra = new ArkhamCitySave(rawData, reader.BaseStream.Position);
 				additionalSegment3s.Add(extra);
-				if (extra.parseError != null && parseError == null) {
-					parseError = "In additional segment 3 (byte " + extra.segment3Start + "): " + extra.parseError;
-					parseErrorPosition = extra.parseErrorPosition;
-				}
-				if (extra.tailError != null && tailError == null) {
-					tailError = "In additional segment 3 (byte " + extra.segment3Start + "): " + extra.tailError;
-					tailErrorPosition = extra.tailErrorPosition;
-				}
 			}
 		}
 
