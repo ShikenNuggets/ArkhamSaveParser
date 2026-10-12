@@ -8,19 +8,20 @@ namespace ArkhamSaveParser {
 	}
 
 	public class CompressedSave {
-		public CompressedSave(string filePath) {
-			rawData = File.ReadAllBytes(filePath);
-			offsets = ExtractSaveOffsets(rawData);
+		public CompressedSave(byte[] bytes) {
+			offsets = ExtractSaveOffsets(bytes);
 
-			reader = new BinaryReader(new MemoryStream(rawData));
+			reader = new BinaryReader(new MemoryStream(bytes));
 
-			segments = [];
+			segments.Clear();
 			FindSegments();
 
 			if (totalDecompressedSize <= 0) {
 				throw new InvalidOperationException("Invalid total decompressed size");
 			}
 		}
+
+		public CompressedSave(string filePath) : this(File.ReadAllBytes(filePath)) {}
 
 		public byte[] ReadFileSegment(FileSegment segment) {
 			reader.BaseStream.Seek(segment.offset, SeekOrigin.Begin);
@@ -32,9 +33,9 @@ namespace ArkhamSaveParser {
 		public List<FileSegment> Segments { get { return segments; } }
 		public int TotalDecompressedSize { get { return totalDecompressedSize; } }
 
-		private byte[] rawData;
-		private int[] offsets;
-		private List<FileSegment> segments;
+		private byte[] rawData = [];
+		private int[] offsets = [];
+		private List<FileSegment> segments = [];
 		private int totalDecompressedSize;
 		private BinaryReader reader;
 
