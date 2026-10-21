@@ -1,54 +1,54 @@
-## Physical challenge slot names
+## Physical Challenge Slot Names
 
 Slot numbers are the array index used by `batChallengeCurrent`, `batChallengeBest` and `batChallengeBeaten`. The slots are **not** in the same order as the in-game challenge menu. Slots 1-40 appear to be the base game challenges and 41-45 the Catwoman DLC ones. The names below were assigned by hand in the viewer, and spelling was tidied (the wording is otherwise the original label).
 
 | Slot | Challenge |
 |---|---|
-| 1 | Glide continuously 150 meters no grapple boost |
-| 2 | Glide continuously 250 meters |
-| 3 | Vertical dive over 50 meters |
-| 4 | 5 consecutive line launches |
-| 5 | Glide 30 meters while less than 5 meters above water |
-| 6 | Achieve 20x combo |
-| 7 | Use 3 quickfire gadgets in one combat encounter |
-| 8 | Achieve 5 variation in one combat encounter |
-| 9 | Aerial attack stuff off one enemy to another |
-| 10 | Use the slide to trip an enemy |
-| 11 | Perform a beatdown to finish an enemy |
-| 12 | Counter an enemy projectile |
-| 13 | Hit a explosive object with a batarang |
-| 14 | Take out 2 enemies at once with the glide boost attack |
-| 15 | Use a combo batarang in combat |
-| 16 | Perform batclaw slam |
-| 17 | Use quickfire rec during a combo |
-| 18 | Use quickfire gel during a combo |
-| 19 | Use freeze nade during a combo |
-| 20 | Use smoke pellet to disorientate enemies into attacking each other |
-| 21 | Finish a fight with a combo batarang |
-| 22 | Use rec on an armed enemy to scare another thug near them |
-| 23 | Use rec to force an enemy to hit another enemy |
-| 24 | Use rec to blast 1 armored thug into another thug |
-| 25 | Use freeze cluster to immobilize 3 or more henchmen at one time |
-| 26 | Freeze nade to freeze an armed enemy before taking him out |
-| 27 | Freeze nade an enemy then batarang to knock them down |
-| 28 | Use the smoke pellet to disorientate an armed enemy and follow up with a takedown |
-| 29 | Disarm an enemy using the batclaw disarm |
-| 30 | Use the disruptor on an armed enemy then get him to use it |
-| 31 | Use the rec to temporarily disable a backpack jammer device |
-| 32 | Perform a grapnel boost takedown |
-| 33 | Use a reverse batarang to knock a thug over |
-| 34 | Use a sonic batarang on a thug |
-| 35 | Kick enemies while using the line launcher |
-| 36 | Do a line launcher takedown on an unsuspecting enemy |
-| 37 | Perform a vantage point takedown |
-| 38 | Perform a knockout smash |
-| 39 | Catch a remote batarang |
-| 40 | Fully boost a remote control batarang into a thug to send him flying |
-| 41 | Use caltrops to stun an enemy |
-| 42 | Perform a special combo whip and trip in a single combo |
-| 43 | Complete one claw climb using at least 8 separate leaps without missing the timing for a single jump |
-| 44 | Perform bounce attacks |
-| 45 | Use whip quickfire attack during a combo |
+| 1 | Glide continuously for over 150 meters (without using the Grapnel Boost upgrade) |
+| 2 | Glide continuously for 250 meters (Grapnel Boost upgrade permitted) |
+| 3 | Perform a vertical dive for over 50 meters |
+| 4 | Perform 5 consecutive line launches without touching the ground |
+| 5 | Glide for 30 meters while maintaining a height of less than 5 meters above the water |
+| 6 | Achieve a x20 combat combo |
+| 7 | Use 3 Quickfire gadgets in one combat encounter |
+| 8 | Achieve a x5 variation bonus in one combat encounter |
+| 9 | Aerial Attack off a stunned enemy into another (3 required) |
+| 10 | Use the Slide to trip an enemy (3 required) |
+| 11 | Perform a Beat Down to finish an enemy (5 required) |
+| 12 | Counter an enemy projectile (3 required) |
+| 13 | Hit an explosive object with a Batarang before it is thrown |
+| 14 | Take out 2 enemies at once with the Glide Boost Attack |
+| 15 | Use a Combo Batarang in combat (10 required) |
+| 16 | Perform a Batclaw Slam (5 required) |
+| 17 | Use the Quickfire Remote Electrical Charge during a combo (5 required) |
+| 18 | Use the Quickfire Gel during a combo (5 required) |
+| 19 | Use the Quickfire Freeze Blast during a combo (5 required) |
+| 20 | Use the Smoke Pellet to disorientate enemies into attacking each other |
+| 21 | Finish a fight with a Combo Batarang (3 required) |
+| 22 | Use the Remote Electrical Charge to get an armed enemy to fire his weapon and surprise at least one other nearby enemy |
+| 23 | Use the Remote Electrical Charge to force an enemy to hit another enemy (3 required) |
+| 24 | Use the Remote Electrical Charge to blast one armored thug into any other thug |
+| 25 | Use the Freeze Cluster Grenade to immobilize three or more henchmen at one time (upgrade required). |
+| 26 | Use the Freeze Blast to freeze an armed enemy before taking him out |
+| 27 | Use the Freeze Blast to freeze an enemy then a Batarang to knock them down |
+| 28 | Use the Smoke Pellet to disorientate an armed enemy and follow up with a Takedown |
+| 29 | Disarm an enemy using the Batclaw Disarm (3 required) |
+| 30 | Use the Disruptor to jam the gun of an armed enemy then get him to try and fire |
+| 31 | Use the Remote Electrical Charge to temporarily disable a backpack Jammer device |
+| 32 | Perform a Grapnel Boost Takedown |
+| 33 | Use a Reverse Batarang to knock down an enemy |
+| 34 | Take down an enemy using the Sonic Shock Batarang |
+| 35 | Kick an enemy while riding on the Line Launcher (3 required) |
+| 36 | While riding on the Line Launcher towards an unaware enemy, use the Takedown attack to drop down and knock them out |
+| 37 | Perform an Inverted Takedown from a Vantage Point |
+| 38 | Perform a Knockout Smash (5 required) |
+| 39 | Catch a Remote Batarang |
+| 40 | Fly a fully boosted Remote Batarang into a thug and send him flying through the air |
+| 41 | Use Caltrops to stun an enemy (3 required) |
+| 42 | Perform a Special Combo Whiplash and Special Combo Whip Trip in one combo flow |
+| 43 | Complete one Claw Climb using at least 8 separate leaps without missing the timing for a single jump |
+| 44 | Perform a Pounce attack (3 required) |
+| 45 | Use the Quickfire Whip attack during combat (3 required) |
 
 ## Field labels from the viewer
 
