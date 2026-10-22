@@ -9,7 +9,14 @@ namespace ArkhamSaveParser {
 
 	public class CompressedSave {
 		public CompressedSave(byte[] bytes) {
+			if (bytes == null || bytes.Length == 0) {
+				throw new InvalidOperationException("Null or empty byte array cannot be decompressed");
+			}
+
 			offsets = ExtractSaveOffsets(bytes);
+			if (offsets == null || offsets.Length == 0) {
+				throw new InvalidOperationException("Could not extract any save offsets");
+			}
 
 			reader = new BinaryReader(new MemoryStream(bytes));
 
@@ -64,6 +71,10 @@ namespace ArkhamSaveParser {
 
 		private static int[] ExtractSaveOffsets(byte[] buffer) {
 			var offsets = new List<int>();
+
+			if (buffer == null) {
+				return offsets.ToArray();
+			}
 
 			for (int i = 0; i < buffer.Length - 4; i++) {
 				if (buffer[i] != 0x9E) {
